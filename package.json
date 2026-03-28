@@ -1,0 +1,25 @@
+{
+  "name": "echo-app-root",
+  "private": true,
+  "scripts": {
+    "prepare": "husky",
+    "lint:frontend": "npm --prefix frontend run lint:fix",
+    "lint:backend": "npm --prefix backend run lint:fix",
+    "lint": "npm run lint:frontend && npm run lint:backend",
+    "type-check:frontend": "npm --prefix frontend run type-check",
+    "type-check:backend": "npm --prefix backend run type-check",
+    "type-check": "npm run type-check:frontend && npm run type-check:backend"
+  },
+  "lint-staged": {
+    "frontend/**/*.{ts,tsx}": [
+      "npm --prefix frontend run lint"
+    ],
+    "backend/**/*.{ts}": [
+      "npm --prefix backend run lint"
+    ]
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0"
+  }
+}
