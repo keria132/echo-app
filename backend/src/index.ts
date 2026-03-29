@@ -1,4 +1,6 @@
+import './instrument.js';
 import { configDotenv } from 'dotenv';
+import * as Sentry from '@sentry/node';
 import express from 'express';
 import authRoutes from './routes/auth.route.js';
 import messageRoutes from './routes/message.route.js';
@@ -21,5 +23,7 @@ if (process.env.NODE_ENV === 'production') {
     response.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
   });
 }
+
+Sentry.setupExpressErrorHandler(app);
 
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
