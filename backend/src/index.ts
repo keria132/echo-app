@@ -1,4 +1,3 @@
-import './instrument.js';
 import { configDotenv } from 'dotenv';
 import * as Sentry from '@sentry/node';
 import express from 'express';
