@@ -1,6 +1,9 @@
 {
   "name": "echo-app-root",
   "private": true,
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "prepare": "husky",
     "lint:frontend": "npm --prefix frontend run lint:fix",
