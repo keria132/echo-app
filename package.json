@@ -8,7 +8,9 @@
     "lint": "npm run lint:frontend && npm run lint:backend",
     "type-check:frontend": "npm --prefix frontend run type-check",
     "type-check:backend": "npm --prefix backend run type-check",
-    "type-check": "npm run type-check:frontend && npm run type-check:backend"
+    "type-check": "npm run type-check:frontend && npm run type-check:backend",
+    "build": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend && npm run build --prefix backend",
+    "start": "npm run start --prefix backend"
   },
   "lint-staged": {
     "frontend/**/*.{ts,tsx}": [
