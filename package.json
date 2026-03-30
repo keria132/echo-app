@@ -20,7 +20,7 @@
     "frontend/**/*.{ts,tsx}": [
       "npm --prefix frontend run lint"
     ],
-    "backend/**/*.{ts}": [
+    "backend/**/*.ts": [
       "npm --prefix backend run lint"
     ]
   },
