@@ -36,22 +36,16 @@ export const signup = async (request: Request, response: Response) => {
     await newUser.save();
     generateToken(newUser._id.toString(), response);
 
-    let emailSent = false;
-
-    try {
-      await sendWelcomeEmail(newUser.email, newUser.name, env.CLIENT_URL);
-      emailSent = true;
-    } catch (error) {
+    sendWelcomeEmail(newUser.email, newUser.name, env.CLIENT_URL).catch(error => {
       console.error('Failed to send welcome email: ', error);
       Sentry.captureException(error);
-    }
+    });
 
     return response.status(201).json({
       _id: newUser._id,
       name: newUser.name,
       email: newUser.email,
       profileIcon: newUser.profileIcon,
-      emailSent,
     });
   } catch (error) {
     console.error(ERROR_MESSAGES.signupError + ': ', error);
