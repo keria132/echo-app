@@ -1,9 +1,9 @@
 import express from 'express';
 
-const messageRoutes = express.Router();
+const router = express.Router();
 
-messageRoutes.get('/send', (_, response) => {
+router.get('/send', (_, response) => {
   response.send('Send messahe endpoint');
 });
 
-export default messageRoutes;
+export default router;

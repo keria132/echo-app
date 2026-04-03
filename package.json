@@ -4,6 +4,7 @@
   "engines": {
     "node": ">=22"
   },
+  "type": "module",
   "scripts": {
     "prepare": "husky",
     "lint:frontend": "npm --prefix frontend run lint:fix",
@@ -19,11 +20,13 @@
     "frontend/**/*.{ts,tsx}": [
       "npm --prefix frontend run lint"
     ],
-    "backend/**/*.{ts}": [
+    "backend/**/*.ts": [
       "npm --prefix backend run lint"
     ]
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0"
   }
