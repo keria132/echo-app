@@ -1,17 +1,15 @@
-import { configDotenv } from 'dotenv';
 import * as Sentry from '@sentry/node';
 import express from 'express';
 import authRoutes from './routes/auth.route.js';
 import messageRoutes from './routes/message.route.js';
 import path from 'node:path';
 import { connectDB } from './lib/db.js';
-
-configDotenv();
+import { DEFAULT_PORT } from './constants.js';
 
 const app = express();
 const __dirname = path.resolve();
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || DEFAULT_PORT;
 
 app.use(express.json());
 

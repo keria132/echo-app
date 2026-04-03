@@ -1,15 +1,10 @@
 import mongoose from 'mongoose';
-import { ERROR_MESSAGES, PROCESS_EXIT_CODE_FAILED } from '../constants.js';
+import { PROCESS_EXIT_CODE_FAILED } from '../constants.js';
+import { env } from './env.js';
 
 export const connectDB = async () => {
   try {
-    const mongodbUri = process.env.MONGODB_URI;
-
-    if (!mongodbUri) {
-      throw new Error(ERROR_MESSAGES.mongoDbUriFailure);
-    }
-
-    const { connection } = await mongoose.connect(mongodbUri);
+    const { connection } = await mongoose.connect(env.MONGODB_URI);
 
     console.log('MONGODB Connected: ', connection.host);
   } catch (error) {
