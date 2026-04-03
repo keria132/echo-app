@@ -7,9 +7,6 @@ export function createWelcomeEmailTemplate(name: string, clientURL: string): str
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Welcome to Echo</title>
   <style>
-    :root{
-      
-    }
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
