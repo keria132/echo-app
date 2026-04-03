@@ -4,6 +4,7 @@ export const ERROR_MESSAGES = {
   serverError: 'Internal server error',
   signupError: 'Error in signup controller',
   jwtSecretFailure: 'Failed to configure jwt key',
+  mongoDbUriFailure: 'Failed to get Mongo DB URI!',
 };
 const JWT_EXPIRATION_DAYS = 7;
 export const JWT_EXPIRATION_TIME = `${JWT_EXPIRATION_DAYS}d`;
