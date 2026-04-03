@@ -13,9 +13,7 @@ export const signup = async (request: Request, response: Response) => {
     if (!parseResult.success) {
       const errors = z.treeifyError(parseResult.error);
 
-      return response.status(400).json({
-        message: errors,
-      });
+      return response.status(400).json({ errors });
     }
 
     const { name, email, password } = parseResult.data;
@@ -32,19 +30,15 @@ export const signup = async (request: Request, response: Response) => {
       password: hashedPassword,
     });
 
-    if (newUser) {
-      generateToken(newUser._id.toString(), response);
-      await newUser.save();
+    await newUser.save();
+    generateToken(newUser._id.toString(), response);
 
-      return response.status(201).json({
-        _id: newUser._id,
-        name: newUser.name,
-        email: newUser.email,
-        profileIcon: newUser.profileIcon,
-      });
-    } else {
-      return response.status(400).json({ message: ERROR_MESSAGES.invalidUser });
-    }
+    return response.status(201).json({
+      _id: newUser._id,
+      name: newUser.name,
+      email: newUser.email,
+      profileIcon: newUser.profileIcon,
+    });
   } catch (error) {
     console.error(ERROR_MESSAGES.signupError + ': ', error);
 
