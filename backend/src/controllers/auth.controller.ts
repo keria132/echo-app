@@ -1,10 +1,13 @@
 import type { Request, Response } from 'express';
+import * as Sentry from '@sentry/node';
 import { signupSchema } from '../schemas/auth.schema.js';
 import User from '../models/User.js';
 import { ERROR_MESSAGES, SALT_ROUNDS } from '../constants.js';
 import bcrypt from 'bcryptjs';
 import { generateToken } from '../lib/utils.js';
 import z from 'zod';
+import { sendWelcomeEmail } from '../emails/emailHandlers.js';
+import { env } from '../lib/env.js';
 
 export const signup = async (request: Request, response: Response) => {
   try {
@@ -32,6 +35,11 @@ export const signup = async (request: Request, response: Response) => {
 
     await newUser.save();
     generateToken(newUser._id.toString(), response);
+
+    sendWelcomeEmail(newUser.email, newUser.name, env.CLIENT_URL).catch(error => {
+      console.error('Failed to send welcome email: ', error);
+      Sentry.captureException(error);
+    });
 
     return response.status(201).json({
       _id: newUser._id,
