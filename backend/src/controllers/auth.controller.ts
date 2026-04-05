@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import * as Sentry from '@sentry/node';
-import { signupSchema } from '../schemas/auth.schema.js';
+import { loginSchema, signupSchema } from '../schemas/auth.schema.js';
 import User from '../models/User.js';
 import { AUTH_COOKIE_NAME, ERROR_MESSAGES, SALT_ROUNDS } from '../constants.js';
 import bcrypt from 'bcryptjs';
@@ -56,9 +56,17 @@ export const signup = async (request: Request, response: Response) => {
 };
 
 export const login = async (request: Request, response: Response) => {
-  const { email, password } = request.body;
-
   try {
+    const parseResult = loginSchema.safeParse(request.body);
+
+    if (!parseResult.success) {
+      const errors = z.treeifyError(parseResult.error);
+
+      return response.status(400).json({ errors });
+    }
+
+    const { email, password } = parseResult.data;
+
     const user = await User.findOne({ email });
 
     if (!user) {
