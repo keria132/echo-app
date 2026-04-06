@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { HydratedDocument, InferSchemaType } from 'mongoose';
 import { PASSWORD_MIN_LENGTH } from '../constants.js';
 
 const UserSchema = new mongoose.Schema(
@@ -26,5 +26,7 @@ const UserSchema = new mongoose.Schema(
 );
 
 const User = mongoose.model('User', UserSchema);
+
+export type UserModelType = HydratedDocument<InferSchemaType<typeof UserSchema>>;
 
 export default User;

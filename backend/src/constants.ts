@@ -4,6 +4,10 @@ export const ERROR_MESSAGES = {
   serverError: 'Internal server error',
   signupError: 'Error in signup controller',
   invalidLogin: 'Invalid credentials',
+  unauthorized: 'Unauthorized access',
+  invalidToken: 'Invalid token',
+  userNotFound: 'User is not found',
+  profileIcon: 'Profile picture required!',
 };
 const JWT_EXPIRATION_DAYS = 7;
 export const JWT_EXPIRATION_TIME = `${JWT_EXPIRATION_DAYS}d`;
@@ -12,3 +16,4 @@ export const SALT_ROUNDS = parseInt(process.env.PASSWORD_SALT_ROUNDS || '10');
 export const PROCESS_EXIT_CODE_FAILED = 1;
 export const DEFAULT_PORT = 3000;
 export const AUTH_COOKIE_NAME = 'echo.token';
+export const EXPRESS_JSON_LIMIT = '5mb';
