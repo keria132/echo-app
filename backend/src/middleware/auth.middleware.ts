@@ -22,6 +22,13 @@ export const protectRoute = async (request: Request, response: Response, next: N
 
     return next();
   } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      return response.status(401).json({ message: ERROR_MESSAGES.tokenExpired });
+    }
+    if (error instanceof jwt.JsonWebTokenError) {
+      return response.status(401).json({ message: ERROR_MESSAGES.invalidToken });
+    }
+
     console.error('Middleware auth error: ', error);
     Sentry.captureException(error);
 
