@@ -1,0 +1,103 @@
+import { Request, Response } from 'express';
+import User from '../models/User.js';
+import * as Sentry from '@sentry/node';
+import { ERROR_MESSAGES } from '../constants.js';
+import Message from '../models/Message.js';
+import cloudinary from '../lib/cloudinary.js';
+
+export const getAllContacts = async (request: Request, response: Response) => {
+  try {
+    const loggedInUserId = request.user?.id;
+
+    if (!loggedInUserId) throw new Error('Logged in user id is undefined!');
+    const users = await User.find({ _id: { $ne: loggedInUserId } }).select('-password -email -createdAt');
+
+    return response.status(200).json(users);
+  } catch (error) {
+    console.error('Error inside getAllContacts controller: ', error);
+    Sentry.captureException(error);
+
+    return response.status(500).json({ message: ERROR_MESSAGES.serverError });
+  }
+};
+
+export const getMessagesByUserId = async (request: Request, response: Response) => {
+  try {
+    const myId = request.user?._id;
+    const { userId } = request.params;
+
+    const messages = await Message.find({
+      $or: [
+        { senderId: myId, receiverId: userId },
+        { senderId: userId, receiverId: myId },
+      ],
+    });
+
+    return response.status(200).json(messages);
+  } catch (error) {
+    console.error('Error inside getMessages controller: ', error);
+    Sentry.captureException(error);
+
+    return response.status(500).json({ message: ERROR_MESSAGES.serverError });
+  }
+};
+
+export const sendMessage = async (request: Request, response: Response) => {
+  try {
+    const { text, image } = request.body;
+    const { userId: receiverId } = request.params;
+    const senderId = request.user?._id;
+
+    if (!senderId) throw new Error('Logged in user id is undefined!');
+
+    let imageUrl = '';
+    if (image) {
+      const uploadResponse = await cloudinary.uploader.upload(image);
+      imageUrl = uploadResponse.secure_url;
+    }
+
+    const newMessage = new Message({
+      senderId,
+      receiverId,
+      text,
+      image: imageUrl,
+    });
+
+    await newMessage.save();
+
+    return response.status(201).json(newMessage);
+  } catch (error) {
+    console.error('Error inside sendMessage controller: ', error);
+    Sentry.captureException(error);
+
+    return response.status(500).json({ message: ERROR_MESSAGES.serverError });
+  }
+};
+
+export const getChatPartners = async (request: Request, response: Response) => {
+  try {
+    const loggedInUserId = request.user?._id;
+
+    if (!loggedInUserId) throw new Error('Logged in user id is undefined!');
+
+    const messages = await Message.find({
+      $or: [{ senderId: loggedInUserId }, { receiverId: loggedInUserId }],
+    });
+
+    const chatPartnersIds = new Set();
+
+    messages.forEach(({ senderId, receiverId }) => {
+      const partnerId = senderId.equals(loggedInUserId) ? receiverId : senderId;
+      chatPartnersIds.add(partnerId);
+    });
+
+    const chatPartners = await User.find({ _id: { $in: [...chatPartnersIds] } }).select('-password -email');
+
+    return response.status(200).json(chatPartners);
+  } catch (error) {
+    console.error('Error inside getChatPartners controller: ', error);
+    Sentry.captureException(error);
+
+    return response.status(500).json({ message: ERROR_MESSAGES.serverError });
+  }
+};
