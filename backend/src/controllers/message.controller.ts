@@ -4,8 +4,9 @@ import * as Sentry from '@sentry/node';
 import { ERROR_MESSAGES, USER_PRIVATE_FIELDS } from '../constants.js';
 import Message from '../models/Message.js';
 import cloudinary from '../lib/cloudinary.js';
+import { Types } from 'mongoose';
 
-type requestParams = { userId: string };
+type RequestParams = { userId: string };
 
 export const getAllContacts = async (request: Request, response: Response) => {
   try {
@@ -23,7 +24,7 @@ export const getAllContacts = async (request: Request, response: Response) => {
   }
 };
 
-export const getMessagesByUserId = async (request: Request<requestParams>, response: Response) => {
+export const getMessagesByUserId = async (request: Request<RequestParams>, response: Response) => {
   try {
     const myId = request.user?._id;
     if (!myId) throw new Error(ERROR_MESSAGES.loggedUserIdUndefined);
@@ -46,7 +47,7 @@ export const getMessagesByUserId = async (request: Request<requestParams>, respo
   }
 };
 
-export const sendMessage = async (request: Request<requestParams>, response: Response) => {
+export const sendMessage = async (request: Request<RequestParams>, response: Response) => {
   try {
     const { text, image } = request.body;
     if (!text && !image)
@@ -94,7 +95,7 @@ export const getChatPartners = async (request: Request, response: Response) => {
       $or: [{ senderId: loggedInUserId }, { receiverId: loggedInUserId }],
     });
 
-    const chatPartnersIds = new Set();
+    const chatPartnersIds = new Set<Types.ObjectId>();
 
     messages.forEach(({ senderId, receiverId }) => {
       const partnerId = senderId.equals(loggedInUserId) ? receiverId : senderId;
