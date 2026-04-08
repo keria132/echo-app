@@ -1,16 +1,18 @@
 import { Request, Response } from 'express';
 import User from '../models/User.js';
 import * as Sentry from '@sentry/node';
-import { ERROR_MESSAGES } from '../constants.js';
+import { ERROR_MESSAGES, USER_PRIVATE_FIELDS } from '../constants.js';
 import Message from '../models/Message.js';
 import cloudinary from '../lib/cloudinary.js';
 
+type requestParams = { userId: string };
+
 export const getAllContacts = async (request: Request, response: Response) => {
   try {
-    const loggedInUserId = request.user?.id;
+    const loggedInUserId = request.user?._id;
+    if (!loggedInUserId) throw new Error(ERROR_MESSAGES.loggedUserIdUndefined);
 
-    if (!loggedInUserId) throw new Error('Logged in user id is undefined!');
-    const users = await User.find({ _id: { $ne: loggedInUserId } }).select('-password -email -createdAt');
+    const users = await User.find({ _id: { $ne: loggedInUserId } }).select(USER_PRIVATE_FIELDS);
 
     return response.status(200).json(users);
   } catch (error) {
@@ -21,9 +23,11 @@ export const getAllContacts = async (request: Request, response: Response) => {
   }
 };
 
-export const getMessagesByUserId = async (request: Request, response: Response) => {
+export const getMessagesByUserId = async (request: Request<requestParams>, response: Response) => {
   try {
     const myId = request.user?._id;
+    if (!myId) throw new Error(ERROR_MESSAGES.loggedUserIdUndefined);
+
     const { userId } = request.params;
 
     const messages = await Message.find({
@@ -42,13 +46,20 @@ export const getMessagesByUserId = async (request: Request, response: Response) 
   }
 };
 
-export const sendMessage = async (request: Request, response: Response) => {
+export const sendMessage = async (request: Request<requestParams>, response: Response) => {
   try {
     const { text, image } = request.body;
-    const { userId: receiverId } = request.params;
-    const senderId = request.user?._id;
+    if (!text && !image)
+      return response.status(400).json({ message: 'Cannot send blank message, text or image is required' });
 
-    if (!senderId) throw new Error('Logged in user id is undefined!');
+    const { userId: receiverId } = request.params;
+
+    const isReceiverExists = await User.exists({ _id: receiverId });
+    if (!isReceiverExists) return response.status(404).json({ message: 'User receiver is not found' });
+
+    const senderId = request.user?._id;
+    if (!senderId) throw new Error(ERROR_MESSAGES.loggedUserIdUndefined);
+    if (senderId.equals(receiverId)) return response.status(400).json({ message: 'Cannot send a message to yourself' });
 
     let imageUrl = '';
     if (image) {
@@ -60,7 +71,7 @@ export const sendMessage = async (request: Request, response: Response) => {
       senderId,
       receiverId,
       text,
-      image: imageUrl,
+      ...(imageUrl && { image: imageUrl }),
     });
 
     await newMessage.save();
@@ -77,8 +88,7 @@ export const sendMessage = async (request: Request, response: Response) => {
 export const getChatPartners = async (request: Request, response: Response) => {
   try {
     const loggedInUserId = request.user?._id;
-
-    if (!loggedInUserId) throw new Error('Logged in user id is undefined!');
+    if (!loggedInUserId) throw new Error(ERROR_MESSAGES.loggedUserIdUndefined);
 
     const messages = await Message.find({
       $or: [{ senderId: loggedInUserId }, { receiverId: loggedInUserId }],
@@ -91,7 +101,7 @@ export const getChatPartners = async (request: Request, response: Response) => {
       chatPartnersIds.add(partnerId);
     });
 
-    const chatPartners = await User.find({ _id: { $in: [...chatPartnersIds] } }).select('-password -email');
+    const chatPartners = await User.find({ _id: { $in: [...chatPartnersIds] } }).select(USER_PRIVATE_FIELDS);
 
     return response.status(200).json(chatPartners);
   } catch (error) {
