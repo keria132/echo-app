@@ -8,6 +8,11 @@ export const ERROR_MESSAGES = {
   invalidToken: 'Invalid token',
   userNotFound: 'User is not found',
   profileIcon: 'Profile picture required!',
+  tokenExpired: 'Token is expired!',
+  tooManyRequests: 'Too many requests!',
+  botDenied: 'Bot access denied!',
+  securityDenied: 'Access denied by security policy',
+  spoofDenied: 'Spoofed bot detected',
 };
 const JWT_EXPIRATION_DAYS = 7;
 export const JWT_EXPIRATION_TIME = `${JWT_EXPIRATION_DAYS}d`;
