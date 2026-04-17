@@ -5,6 +5,7 @@ import './index.css';
 import App from './App.tsx';
 import * as Sentry from '@sentry/react';
 import { BrowserRouter } from 'react-router';
+import { Toaster } from './components/ui/sonner.tsx';
 
 const container = document.getElementById('root');
 const root = createRoot(container!, {
@@ -19,6 +20,7 @@ root.render(
   <StrictMode>
     <BrowserRouter>
       <App />
+      <Toaster richColors />
     </BrowserRouter>
   </StrictMode>,
 );
