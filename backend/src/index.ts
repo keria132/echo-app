@@ -7,12 +7,15 @@ import path from 'node:path';
 import { connectDB } from './lib/db.js';
 import { DEFAULT_PORT, EXPRESS_JSON_LIMIT } from './constants.js';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import { env } from './lib/env.js';
 
 const app = express();
 const __dirname = path.resolve();
 
 const PORT = process.env.PORT || DEFAULT_PORT;
 
+app.use(cors({ origin: env.CLIENT_URL, credentials: true }));
 app.use(express.json({ limit: EXPRESS_JSON_LIMIT }));
 app.use(cookieParser());
 
