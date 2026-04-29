@@ -4,7 +4,11 @@ import { cn } from '@/lib/utils';
 import type { ComponentProps } from 'react';
 
 const badgeVariants = cva(
-  'group/badge box-content inline-flex h-5 w-fit shrink-0 tracking-[0.3px] items-center justify-center gap-1 overflow-hidden rounded-4xl border border-transparent px-2 py-0.5 text-xs font-medium whitespace-nowrap transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none [&>svg]:size-3!',
+  `group/badge box-content inline-flex h-5 w-fit shrink-0 tracking-[0.3px] items-center justify-center gap-1 overflow-hidden
+  rounded-4xl border border-transparent px-2 py-0.5 text-xs font-medium whitespace-nowrap transition-all focus-visible:border-ring
+  focus-visible:ring-[3px] focus-visible:ring-ring/50 has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5
+  aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none
+  [&>svg]:size-3!`,
   {
     variants: {
       variant: {
@@ -15,6 +19,7 @@ const badgeVariants = cva(
         outline: 'border border-echo-p/22 bg-echo-p/15 font-semibold text-echo-p-light ',
         ghost: 'hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50',
         link: 'text-primary underline-offset-4 hover:underline',
+        notification: 'bg-echo-gradient size-4.5 p-0 text-[10px] font-bold tracking-tighter',
       },
     },
     defaultVariants: {

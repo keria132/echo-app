@@ -1,4 +1,4 @@
-import AuthHero from '@/components/AuthHero';
+import AuthHero from '@/components/auth/AuthHero';
 import { Button } from '@/components/ui/button';
 import {
   Field,
@@ -66,6 +66,7 @@ const LoginPage = () => {
                 name="email"
                 autoComplete="off"
                 aria-invalid={!!errors.email}
+                required
               />
               <FieldError>{errors.email}</FieldError>
             </Field>
@@ -82,12 +83,13 @@ const LoginPage = () => {
                 autoComplete="off"
                 placeholder="••••••••"
                 aria-invalid={!!errors.password}
+                required
               />
               <FieldError>{errors.password}</FieldError>
             </Field>
           </FieldGroup>
         </FieldSet>
-        <Button variant="primary" type="submit" className="mt-6 h-12">
+        <Button variant="primary" type="submit" className="shadow-echo-resting-lg hover:shadow-echo-hover-lg mt-6 h-12">
           {isLoggingIn ? <LoaderCircle className="size-6 shrink-0 animate-spin" /> : 'Log in'}
         </Button>
         <div className="mt-2 text-sm">

@@ -1,10 +1,10 @@
 import { useState, type SyntheticEvent } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
-import AuthHero from '@/components/AuthHero';
 import { signupSchema, type SignupSchemaType } from '@/schemas/auth.schema';
 import z from 'zod';
 import type { FormErrors } from '@/types/auth.types';
-import SignUpForm from '@/components/SignUpForm';
+import SignUpForm from '@/components/auth/SignUpForm';
+import AuthHero from '@/components/auth/AuthHero';
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState<SignupSchemaType>({ name: '', email: '', password: '', repeatPassword: '' });
