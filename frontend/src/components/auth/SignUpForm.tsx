@@ -1,7 +1,7 @@
 import { LoaderCircle } from 'lucide-react';
-import { Button } from './ui/button';
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSet } from './ui/field';
-import { Input } from './ui/input';
+import { Button } from '../ui/button';
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSet } from '../ui/field';
+import { Input } from '../ui/input';
 import { Link } from 'react-router';
 import type { SignupSchemaType } from '@/schemas/auth.schema';
 import type { SyntheticEvent } from 'react';
@@ -41,6 +41,7 @@ const SignUpForm = ({ onSubmit, onChange, errors, formData }: SignUpFormProps) =
               autoComplete="off"
               placeholder="Danny"
               aria-invalid={!!errors.name}
+              required
             />
             <FieldError>{errors.name}</FieldError>
             <FieldDescription>This appears on your account</FieldDescription>
@@ -57,6 +58,7 @@ const SignUpForm = ({ onSubmit, onChange, errors, formData }: SignUpFormProps) =
               name="email"
               autoComplete="off"
               aria-invalid={!!errors.email}
+              required
             />
             <FieldError>{errors.email}</FieldError>
           </Field>
@@ -73,6 +75,7 @@ const SignUpForm = ({ onSubmit, onChange, errors, formData }: SignUpFormProps) =
               autoComplete="off"
               placeholder="••••••••"
               aria-invalid={!!errors.password}
+              required
             />
             <FieldError>{errors.password}</FieldError>
           </Field>
@@ -92,7 +95,7 @@ const SignUpForm = ({ onSubmit, onChange, errors, formData }: SignUpFormProps) =
           </Field>
         </FieldGroup>
       </FieldSet>
-      <Button variant="primary" type="submit" className="mt-6 h-12">
+      <Button variant="primary" type="submit" className="shadow-echo-resting-lg hover:shadow-echo-hover-lg mt-6 h-12">
         {isSigningUp ? <LoaderCircle className="size-6 shrink-0 animate-spin" /> : 'Sign up'}
       </Button>
       <div className="mt-2 text-sm">

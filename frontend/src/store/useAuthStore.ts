@@ -2,12 +2,11 @@ import { create } from 'zustand';
 import { api } from '../lib/axios';
 import { toast } from 'sonner';
 import { getApiErrorMessage } from '@/lib/utils';
-import type { User } from '@/types/global.types';
 import type { LoginSchemaType } from '@/schemas/auth.schema';
-import type { SignupPayload } from '@/types/auth.types';
+import type { AuthUser, SignupPayload } from '@/types/auth.types';
 
 interface AuthStoreState {
-  user: null | User;
+  user: null | AuthUser;
   isAuthenticated: boolean;
   isLoggingIn: boolean;
   isSigningUp: boolean;

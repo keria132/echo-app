@@ -13,3 +13,6 @@ export const getApiErrorMessage = (error: unknown): string => {
 
   return 'Unexpected error!';
 };
+
+export const formatMessageTime = (date: string) =>
+  new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
