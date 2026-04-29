@@ -1,21 +1,26 @@
-import { configDotenv } from 'dotenv';
 import * as Sentry from '@sentry/node';
 import express from 'express';
 import authRoutes from './routes/auth.route.js';
+import userRoutes from './routes/user.route.js';
 import messageRoutes from './routes/message.route.js';
 import path from 'node:path';
 import { connectDB } from './lib/db.js';
-
-configDotenv();
+import { DEFAULT_PORT, EXPRESS_JSON_LIMIT } from './constants.js';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import { env } from './lib/env.js';
 
 const app = express();
 const __dirname = path.resolve();
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || DEFAULT_PORT;
 
-app.use(express.json());
+app.use(cors({ origin: env.CLIENT_URL, credentials: true }));
+app.use(express.json({ limit: EXPRESS_JSON_LIMIT }));
+app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
 app.use('/api/messages', messageRoutes);
 
 if (process.env.NODE_ENV === 'production') {
