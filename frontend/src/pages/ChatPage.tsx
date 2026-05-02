@@ -1,13 +1,13 @@
 import ConversationScreen from '@/components/chat/ConversationScreen';
+import MessageInput from '@/components/chat/MessageInput';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
-import { Input } from '@/components/ui/input';
-import { useChatStore } from '@/store/useChatStore';
-import { Ellipsis, ImagePlus, MessageCircle, Send, Smile } from 'lucide-react';
+import { useAppStore } from '@/store/useAppStore';
+import { Ellipsis, MessageCircle } from 'lucide-react';
 
 const ChatPage = () => {
-  const { selectedUser } = useChatStore();
+  const { selectedUser } = useAppStore();
 
   if (!selectedUser)
     return (
@@ -41,18 +41,7 @@ const ChatPage = () => {
         </Button>
       </div>
       <ConversationScreen selectedUserId={selectedUser._id} name={selectedUser.name} />
-      <div className="bg-echo-surface border-echo-border flex items-center gap-2 border-t p-4">
-        <Button variant="ghost" className="text-echo-t3 hover:text-echo-t2 rounded-md" size="icon-lg">
-          <ImagePlus className="size-5" />
-        </Button>
-        <Input placeholder="Write a message" />
-        <Button variant="ghost" className="text-echo-t3 hover:text-echo-t2 rounded-md" size="icon-lg">
-          <Smile className="size-5" />
-        </Button>
-        <Button variant="primary" size="icon-xl">
-          <Send className="size-5" />
-        </Button>
-      </div>
+      <MessageInput userId={selectedUser._id} />
     </section>
   );
 };

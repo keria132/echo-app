@@ -14,6 +14,9 @@ export const ERROR_MESSAGES = {
   securityDenied: 'Access denied by security policy',
   spoofDenied: 'Spoofed bot detected',
   loggedUserIdUndefined: 'Logged in user id is undefined!',
+  blankMessage: 'Cannot send blank message, text or image is required',
+  messageReceiverNotFound: 'User receiver is not found',
+  selfMessage: 'Cannot send a message to yourself',
 };
 const JWT_EXPIRATION_DAYS = 7;
 export const JWT_EXPIRATION_TIME = `${JWT_EXPIRATION_DAYS}d`;

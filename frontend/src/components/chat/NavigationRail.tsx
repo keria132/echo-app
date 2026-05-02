@@ -14,7 +14,7 @@ import {
   AlertDialogTrigger,
 } from '../ui/alert-dialog';
 import { cn } from '@/lib/utils';
-import { useChatStore } from '@/store/useChatStore';
+import { useAppStore } from '@/store/useAppStore';
 import { NavLink } from 'react-router';
 import type { Dispatch, SetStateAction } from 'react';
 import { VisuallyHidden } from 'radix-ui';
@@ -30,7 +30,7 @@ const NavigationRail = ({
   className?: string;
 }) => {
   const { logout } = useAuthStore();
-  const { isSoundEnabled, toggleSound } = useChatStore();
+  const { isSoundEnabled, toggleSound } = useAppStore();
 
   return (
     <aside

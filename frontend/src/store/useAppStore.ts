@@ -5,14 +5,14 @@ const SOUND_PREFERENCE_NAME = 'isSoundEnabled';
 
 export type Tabs = 'chats' | 'settings' | 'logout' | 'profile';
 
-interface ChatStoreState {
+interface AppStoreState {
   selectedUser: User | null;
   isSoundEnabled: boolean;
   toggleSound: () => void;
   setSelectedUser: (user: User) => void;
 }
 
-export const useChatStore = create<ChatStoreState>((set, get) => ({
+export const useAppStore = create<AppStoreState>((set, get) => ({
   selectedUser: null,
   isSoundEnabled: localStorage.getItem(SOUND_PREFERENCE_NAME) === 'true',
   toggleSound: () => {

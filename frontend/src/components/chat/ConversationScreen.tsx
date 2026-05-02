@@ -60,16 +60,15 @@ const ConversationScreen = ({ selectedUserId, name }: { selectedUserId: string; 
 
   return (
     <ScrollArea className="min-h-0 w-full flex-1">
-      <div className="flex h-full flex-col gap-1.5 px-4 py-2">
-        {/* TODO: SORT MESSAGES BASED ON THE DAY */}
-        {messages?.map(({ _id, senderId, text, createdAt }) => (
+      <div className="flex h-full flex-col gap-3 px-4 py-2">
+        {/* TODO: SORT MESSAGES BASED ON THE DAY AND AUTOSCROLL*/}
+        {messages?.map(({ _id, senderId, text, status, createdAt }) => (
           <Message
             key={_id}
             text={text}
             isOwnMessage={senderId === user?._id}
             time={formatMessageTime(createdAt)}
-            isDelivered={true}
-            isViewed={true}
+            status={status}
           />
         ))}
       </div>
