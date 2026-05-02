@@ -5,6 +5,7 @@ import { ERROR_MESSAGES, USER_PRIVATE_FIELDS } from '../constants.js';
 import Message from '../models/Message.js';
 import cloudinary from '../lib/cloudinary.js';
 import { Types } from 'mongoose';
+import { getConnectedUsers } from '../lib/socket.js';
 
 type RequestParams = { userId: string };
 
@@ -50,19 +51,18 @@ export const getMessagesByUserId = async (request: Request<RequestParams>, respo
 export const sendMessage = async (request: Request<RequestParams>, response: Response) => {
   try {
     const { text, image } = request.body;
-    if (!text && !image)
-      return response.status(400).json({ message: 'Cannot send blank message, text or image is required' });
+    if (!text && !image) return response.status(400).json({ message: ERROR_MESSAGES.blankMessage });
 
     const { userId: receiverId } = request.params;
 
     const isReceiverExists = await User.exists({ _id: receiverId });
-    if (!isReceiverExists) return response.status(404).json({ message: 'User receiver is not found' });
+    if (!isReceiverExists) return response.status(404).json({ message: ERROR_MESSAGES.messageReceiverNotFound });
 
     const senderId = request.user?._id;
     if (!senderId) throw new Error(ERROR_MESSAGES.loggedUserIdUndefined);
-    if (senderId.equals(receiverId)) return response.status(400).json({ message: 'Cannot send a message to yourself' });
+    if (senderId.equals(receiverId)) return response.status(400).json({ message: ERROR_MESSAGES.selfMessage });
 
-    let imageUrl = '';
+    let imageUrl: string | null = null;
     if (image) {
       const uploadResponse = await cloudinary.uploader.upload(image);
       imageUrl = uploadResponse.secure_url;
@@ -77,6 +77,11 @@ export const sendMessage = async (request: Request<RequestParams>, response: Res
 
     await newMessage.save();
 
+    const receiverSocket = getConnectedUsers().get(receiverId);
+    if (receiverSocket?.readyState === WebSocket.OPEN) {
+      receiverSocket.send(JSON.stringify({ type: 'new_message', payload: newMessage }));
+    }
+
     return response.status(201).json(newMessage);
   } catch (error) {
     console.error('Error inside sendMessage controller: ', error);
@@ -86,6 +91,7 @@ export const sendMessage = async (request: Request<RequestParams>, response: Res
   }
 };
 
+// TODO: Inefficient logic, refactor
 export const getChatPartners = async (request: Request, response: Response) => {
   try {
     const loggedInUserId = request.user?._id;

@@ -9,8 +9,11 @@ import { DEFAULT_PORT, EXPRESS_JSON_LIMIT } from './constants.js';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { env } from './lib/env.js';
+import { createServer } from 'node:http';
+import { initSocket } from './lib/socket.js';
 
 const app = express();
+const httpServer = createServer(app);
 const __dirname = path.resolve();
 
 const PORT = process.env.PORT || DEFAULT_PORT;
@@ -34,7 +37,8 @@ if (process.env.NODE_ENV === 'production') {
 Sentry.setupExpressErrorHandler(app);
 
 await connectDB();
+initSocket(httpServer);
 
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

@@ -1,4 +1,4 @@
-import { useChatStore } from '@/store/useChatStore';
+import { useAppStore } from '@/store/useAppStore';
 import { Avatar, AvatarBadge, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Badge } from '../ui/badge';
 import type { User } from '@/types/user.types';
@@ -12,7 +12,7 @@ interface ConversationsItemProps {
 }
 
 const ConversationsItem = ({ user, lastMessage, lastOnline, messagesCount }: ConversationsItemProps) => {
-  const { selectedUser, setSelectedUser } = useChatStore();
+  const { selectedUser, setSelectedUser } = useAppStore();
 
   return (
     <div

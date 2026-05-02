@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { getApiErrorMessage } from '@/lib/utils';
 import type { LoginSchemaType } from '@/schemas/auth.schema';
 import type { AuthUser, SignupPayload } from '@/types/auth.types';
+import { useSocketStore } from './useSocketStore';
 
 interface AuthStoreState {
   user: null | AuthUser;
@@ -16,6 +17,8 @@ interface AuthStoreState {
   logout: () => Promise<void>;
 }
 
+const { connect, disconnect } = useSocketStore.getState();
+
 export const useAuthStore = create<AuthStoreState>(set => ({
   user: null,
   isAuthenticated: false,
@@ -25,6 +28,7 @@ export const useAuthStore = create<AuthStoreState>(set => ({
     try {
       const response = await api.get('/auth/check');
       set({ user: response.data });
+      connect();
     } catch {
       set({ user: null });
     } finally {
@@ -38,7 +42,7 @@ export const useAuthStore = create<AuthStoreState>(set => ({
     try {
       const response = await api.post('/auth/signup', data);
       set({ user: response.data });
-
+      connect();
       toast.success('You successfully signed up');
     } catch (error) {
       toast.error(getApiErrorMessage(error));
@@ -53,7 +57,7 @@ export const useAuthStore = create<AuthStoreState>(set => ({
     try {
       const response = await api.post('/auth/login', data);
       set({ user: response.data });
-
+      connect();
       toast.success('You successfully logged in');
     } catch (error) {
       toast.error(getApiErrorMessage(error));
@@ -66,7 +70,7 @@ export const useAuthStore = create<AuthStoreState>(set => ({
     try {
       const response = await api.delete('/auth/logout');
       set({ user: null });
-
+      disconnect();
       toast.success(response.data.message);
     } catch (error) {
       toast.error(getApiErrorMessage(error));

@@ -20,6 +20,11 @@ const MessageSchema = new mongoose.Schema(
     image: {
       type: String,
     },
+    status: {
+      type: String,
+      enum: ['sent', 'viewed'],
+      default: 'sent',
+    },
   },
   { timestamps: true },
 );

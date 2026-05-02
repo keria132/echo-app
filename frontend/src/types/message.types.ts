@@ -1,3 +1,5 @@
+export type MessageStatus = 'sending' | 'failed' | 'sent' | 'viewed';
+
 export interface Message {
   _id: string;
   senderId: string;
@@ -6,4 +8,5 @@ export interface Message {
   image: string;
   createdAt: string;
   updatedAt: string;
+  status: MessageStatus;
 }
