@@ -1,4 +1,4 @@
-import type { User } from '@/types/user.types';
+import type { ChatListUser } from '@/types/user.types';
 import { create } from 'zustand';
 
 const SOUND_PREFERENCE_NAME = 'isSoundEnabled';
@@ -6,10 +6,10 @@ const SOUND_PREFERENCE_NAME = 'isSoundEnabled';
 export type Tabs = 'chats' | 'settings' | 'logout' | 'profile';
 
 interface AppStoreState {
-  selectedUser: User | null;
+  selectedUser: ChatListUser | null;
   isSoundEnabled: boolean;
   toggleSound: () => void;
-  setSelectedUser: (user: User) => void;
+  setSelectedUser: (user: ChatListUser) => void;
 }
 
 export const useAppStore = create<AppStoreState>((set, get) => ({

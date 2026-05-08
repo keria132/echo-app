@@ -4,26 +4,10 @@ import * as Sentry from '@sentry/node';
 import { ERROR_MESSAGES, USER_PRIVATE_FIELDS } from '../constants.js';
 import Message from '../models/Message.js';
 import cloudinary from '../lib/cloudinary.js';
-import { Types } from 'mongoose';
 import { getConnectedUsers } from '../lib/socket.js';
+import Chat from '../models/Chat.js';
 
 type RequestParams = { userId: string };
-
-export const getAllContacts = async (request: Request, response: Response) => {
-  try {
-    const loggedInUserId = request.user?._id;
-    if (!loggedInUserId) throw new Error(ERROR_MESSAGES.loggedUserIdUndefined);
-
-    const users = await User.find({ _id: { $ne: loggedInUserId } }).select(USER_PRIVATE_FIELDS);
-
-    return response.status(200).json(users);
-  } catch (error) {
-    console.error('Error inside getAllContacts controller: ', error);
-    Sentry.captureException(error);
-
-    return response.status(500).json({ message: ERROR_MESSAGES.serverError });
-  }
-};
 
 export const getMessagesByUserId = async (request: Request<RequestParams>, response: Response) => {
   try {
@@ -68,6 +52,11 @@ export const sendMessage = async (request: Request<RequestParams>, response: Res
       imageUrl = uploadResponse.secure_url;
     }
 
+    const senderSocket = getConnectedUsers().get(senderId.toString());
+    const receiverSocket = getConnectedUsers().get(receiverId);
+    const isReceiverSocketOpen = receiverSocket?.readyState === WebSocket.OPEN;
+    const isSenderSocketOpen = senderSocket?.readyState === WebSocket.OPEN;
+
     const newMessage = new Message({
       senderId,
       receiverId,
@@ -77,42 +66,42 @@ export const sendMessage = async (request: Request<RequestParams>, response: Res
 
     await newMessage.save();
 
-    const receiverSocket = getConnectedUsers().get(receiverId);
-    if (receiverSocket?.readyState === WebSocket.OPEN) {
+    const lastMessageData = {
+      text,
+      senderId,
+      createdAt: newMessage.createdAt,
+    };
+
+    const existingChat = await Chat.findOne({
+      participants: { $all: [senderId, receiverId] },
+    });
+
+    if (!existingChat) {
+      const newChat = await Chat.create({
+        participants: [senderId, receiverId],
+        lastMessage: lastMessageData,
+      });
+
+      const populatedChat = await newChat.populate('participants', USER_PRIVATE_FIELDS);
+
+      if (isReceiverSocketOpen) {
+        receiverSocket.send(JSON.stringify({ type: 'new_chat', payload: populatedChat }));
+      }
+      if (isSenderSocketOpen) {
+        senderSocket.send(JSON.stringify({ type: 'new_chat', payload: populatedChat }));
+      }
+    } else {
+      existingChat.lastMessage = lastMessageData;
+      await existingChat.save();
+    }
+
+    if (isReceiverSocketOpen) {
       receiverSocket.send(JSON.stringify({ type: 'new_message', payload: newMessage }));
     }
 
     return response.status(201).json(newMessage);
   } catch (error) {
     console.error('Error inside sendMessage controller: ', error);
-    Sentry.captureException(error);
-
-    return response.status(500).json({ message: ERROR_MESSAGES.serverError });
-  }
-};
-
-// TODO: Inefficient logic, refactor
-export const getChatPartners = async (request: Request, response: Response) => {
-  try {
-    const loggedInUserId = request.user?._id;
-    if (!loggedInUserId) throw new Error(ERROR_MESSAGES.loggedUserIdUndefined);
-
-    const messages = await Message.find({
-      $or: [{ senderId: loggedInUserId }, { receiverId: loggedInUserId }],
-    });
-
-    const chatPartnersIds = new Set<Types.ObjectId>();
-
-    messages.forEach(({ senderId, receiverId }) => {
-      const partnerId = senderId.equals(loggedInUserId) ? receiverId : senderId;
-      chatPartnersIds.add(partnerId);
-    });
-
-    const chatPartners = await User.find({ _id: { $in: [...chatPartnersIds] } }).select(USER_PRIVATE_FIELDS);
-
-    return response.status(200).json(chatPartners);
-  } catch (error) {
-    console.error('Error inside getChatPartners controller: ', error);
     Sentry.captureException(error);
 
     return response.status(500).json({ message: ERROR_MESSAGES.serverError });

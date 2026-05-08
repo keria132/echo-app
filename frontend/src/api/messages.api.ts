@@ -1,17 +1,18 @@
 import { api } from '@/lib/axios';
 import type { Message } from '@/types/message.types';
 import { queryOptions, skipToken } from '@tanstack/react-query';
+import { messagesEndpoints } from './routes.constants';
 
 export const MESSAGES_QUERY_KEY = 'messages';
 
 const getMessagesByUserId = async (userId: string) => {
-  const response = await api.get<Message[]>('/messages/' + userId);
+  const response = await api.get<Message[]>(messagesEndpoints.base + userId);
 
   return response.data;
 };
 
 export const sendMessage = async (userId: string, payload: { text: string; image?: string }) => {
-  const response = await api.post<Message>(`/messages/send/${userId}`, payload);
+  const response = await api.post<Message>(messagesEndpoints.send + userId, payload);
 
   return response.data;
 };

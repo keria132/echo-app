@@ -1,15 +1,16 @@
 import { messagesQueryOptions, sendMessage } from '@/api/messages.api';
+import { chatsQueryOptions } from '@/api/user.api';
 import { getQueryClient } from '@/lib/query';
-import type { Message } from '@/types/message.types';
-import { useMutation } from '@tanstack/react-query';
-import notificationSound from '@/assets/sounds/notification.mp3';
 import { useAppStore } from '@/store/useAppStore';
+import type { Message } from '@/types/message.types';
+import type { Chat } from '@/types/user.types';
+import { useMutation } from '@tanstack/react-query';
+import notificationSound from '@/assets/sounds/notificationSound.mp3';
 
-const messageSendSound = new Audio(notificationSound);
+const newMessageSound = new Audio(notificationSound);
 
 export const useMessageMutation = (senderId: string, receiverId: string) => {
   const queryClient = getQueryClient();
-  const { isSoundEnabled } = useAppStore.getState();
 
   return useMutation({
     mutationFn: (payload: { text: string; image?: string }) => sendMessage(receiverId, payload),
@@ -38,14 +39,22 @@ export const useMessageMutation = (senderId: string, receiverId: string) => {
     },
 
     onSuccess: (data, _, context) => {
+      if (useAppStore.getState().isSoundEnabled) {
+        newMessageSound.play().catch(console.error);
+      }
+
       queryClient.setQueryData(
         messagesQueryOptions(receiverId).queryKey,
         prev => prev?.map(message => (message._id === context.messageTempId ? data : message)) ?? [],
       );
 
-      if (isSoundEnabled) {
-        messageSendSound.play().catch(console.error);
-      }
+      queryClient.setQueryData<Chat[]>(chatsQueryOptions().queryKey, prev =>
+        prev?.map(conv =>
+          conv.participants.some(participant => participant._id === receiverId)
+            ? { ...conv, lastMessage: { text: data.text, createdAt: data.createdAt, senderId: data.senderId } }
+            : conv,
+        ),
+      );
     },
 
     onError: (_, __, context) => {
