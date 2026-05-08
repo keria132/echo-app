@@ -1,13 +1,13 @@
-import ConversationScreen from '@/components/chat/ConversationScreen';
+import ChatScreen from '@/components/chat/ChatScreen';
+import MessageInput from '@/components/chat/MessageInput';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
-import { Input } from '@/components/ui/input';
-import { useChatStore } from '@/store/useChatStore';
-import { Ellipsis, ImagePlus, MessageCircle, Send, Smile } from 'lucide-react';
+import { useAppStore } from '@/store/useAppStore';
+import { Ellipsis, MessageCircle } from 'lucide-react';
 
 const ChatPage = () => {
-  const { selectedUser } = useChatStore();
+  const { selectedUser } = useAppStore();
 
   if (!selectedUser)
     return (
@@ -33,26 +33,15 @@ const ChatPage = () => {
         </Avatar>
         <div className="min-w-0 flex-1">
           <p className="mb-0.5 font-semibold">{selectedUser.name}</p>
-          {/* TODO: STATUS IS ONLINE, BACKEND FIRST */}
+          {/* TODO: STATUS IS ONLINE/LAST ONLINE, BACKEND FIRST */}
           <p className="text-echo-green w-full text-xs">online</p>
         </div>
         <Button variant="outline" className="size-9 rounded-md p-0">
           <Ellipsis className="text-echo-t2" />
         </Button>
       </div>
-      <ConversationScreen selectedUserId={selectedUser._id} name={selectedUser.name} />
-      <div className="bg-echo-surface border-echo-border flex items-center gap-2 border-t p-4">
-        <Button variant="ghost" className="text-echo-t3 hover:text-echo-t2 rounded-md" size="icon-lg">
-          <ImagePlus className="size-5" />
-        </Button>
-        <Input placeholder="Write a message" />
-        <Button variant="ghost" className="text-echo-t3 hover:text-echo-t2 rounded-md" size="icon-lg">
-          <Smile className="size-5" />
-        </Button>
-        <Button variant="primary" size="icon-xl">
-          <Send className="size-5" />
-        </Button>
-      </div>
+      <ChatScreen selectedUserId={selectedUser._id} name={selectedUser.name} />
+      <MessageInput userId={selectedUser._id} />
     </section>
   );
 };

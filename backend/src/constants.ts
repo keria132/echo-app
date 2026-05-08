@@ -1,4 +1,5 @@
 export const PASSWORD_MIN_LENGTH = 8;
+export const NAME_MAX_LENGTH = 50;
 export const ERROR_MESSAGES = {
   emailExists: 'User with this email already exists',
   serverError: 'Internal server error',
@@ -14,6 +15,10 @@ export const ERROR_MESSAGES = {
   securityDenied: 'Access denied by security policy',
   spoofDenied: 'Spoofed bot detected',
   loggedUserIdUndefined: 'Logged in user id is undefined!',
+  blankMessage: 'Cannot send blank message, text or image is required',
+  messageReceiverNotFound: 'User receiver is not found',
+  selfMessage: 'Cannot send a message to yourself',
+  searchUser: 'Handle is required',
 };
 const JWT_EXPIRATION_DAYS = 7;
 export const JWT_EXPIRATION_TIME = `${JWT_EXPIRATION_DAYS}d`;

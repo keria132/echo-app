@@ -16,7 +16,7 @@ A full-stack real-time messaging application, built as both a learning project a
 
 - React, Vite, TypeScript
 - Tailwind CSS, shadcn/ui
-- TanStack Query, React Hook Form, Zod
+- TanStack Query, Zod
 
 **Infra / Tooling**
 
@@ -37,10 +37,10 @@ echo/
 
 - [x] Basic Auth (register, login, logout, profile)
 - [x] Frontend auth and main pages layout
-- [ ] Real-time messaging via WebSockets (native)
+- [x] Real-time messaging via WebSockets (native)
 - [ ] Add users for conversations by shareable id
 - [ ] Profile image upload
-- [ ] Messages api integration
+- [x] Messages api integration
 - [ ] Unit tests coverage
 - [ ] Email confirmation logic
 - [ ] Two-token JWT pattern (access + refresh)

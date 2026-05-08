@@ -7,17 +7,10 @@ import * as Sentry from '@sentry/react';
 import { BrowserRouter } from 'react-router';
 import { Toaster } from './components/ui/sonner.tsx';
 import { TooltipProvider } from './components/ui/tooltip.tsx';
-import { QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { getApiErrorMessage } from './lib/utils.ts';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { getQueryClient } from './lib/query.ts';
 
-const queryClient = new QueryClient({
-  queryCache: new QueryCache({
-    onError: error => {
-      toast.error(getApiErrorMessage(error));
-    },
-  }),
-});
+const queryClient = getQueryClient();
 
 if (import.meta.env.DEV) {
   window.__TANSTACK_QUERY_CLIENT__ = queryClient;

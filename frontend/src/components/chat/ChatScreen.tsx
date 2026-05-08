@@ -8,10 +8,24 @@ import { Button } from '../ui/button';
 import Message from './Message';
 import { useAuthStore } from '@/store/useAuthStore';
 import { formatMessageTime } from '@/lib/utils';
+import { useEffect, useRef } from 'react';
 
-const ConversationScreen = ({ selectedUserId, name }: { selectedUserId: string; name: string }) => {
+const ChatScreen = ({ selectedUserId, name }: { selectedUserId: string; name: string }) => {
   const { data: messages, isLoading, isSuccess, isError, refetch } = useQuery(messagesQueryOptions(selectedUserId));
   const { user } = useAuthStore();
+
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
+
+    if (viewport) {
+      viewport.scrollTo({
+        top: viewport.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
+  }, [messages]);
 
   if (isLoading)
     return (
@@ -59,17 +73,16 @@ const ConversationScreen = ({ selectedUserId, name }: { selectedUserId: string; 
     );
 
   return (
-    <ScrollArea className="min-h-0 w-full flex-1">
-      <div className="flex h-full flex-col gap-1.5 px-4 py-2">
-        {/* TODO: SORT MESSAGES BASED ON THE DAY */}
-        {messages?.map(({ _id, senderId, text, createdAt }) => (
+    <ScrollArea ref={scrollAreaRef} className="min-h-0 w-full flex-1">
+      <div className="flex h-full flex-col gap-3 px-4 py-2">
+        {/* TODO: SORT MESSAGES BASED ON THE DAY*/}
+        {messages?.map(({ _id, senderId, text, status, createdAt }) => (
           <Message
             key={_id}
             text={text}
             isOwnMessage={senderId === user?._id}
             time={formatMessageTime(createdAt)}
-            isDelivered={true}
-            isViewed={true}
+            status={status}
           />
         ))}
       </div>
@@ -77,4 +90,4 @@ const ConversationScreen = ({ selectedUserId, name }: { selectedUserId: string; 
   );
 };
 
-export default ConversationScreen;
+export default ChatScreen;
