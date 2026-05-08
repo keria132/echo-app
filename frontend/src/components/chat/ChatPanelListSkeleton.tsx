@@ -1,17 +1,7 @@
 import { Skeleton } from '../ui/skeleton';
 
-const ConversationsListSkeleton = () => (
+export const ChatPanelListSkeleton = () => (
   <div className="flex flex-col gap-1">
-    <p className="echo-label mt-3 pl-1">Pinned</p>
-    <div className="flex gap-1 overflow-hidden px-1 py-1">
-      {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="shrink-0 basis-2/7 p-1">
-          <Skeleton className="h-24 w-full rounded-xl" />
-        </div>
-      ))}
-    </div>
-
-    <p className="echo-label mt-3 pl-1">Recent</p>
     {Array.from({ length: 5 }).map((_, i) => (
       <div key={i} className="flex items-center gap-2 rounded-lg p-2">
         <Skeleton className="size-10 shrink-0 rounded-full" />
@@ -28,4 +18,15 @@ const ConversationsListSkeleton = () => (
   </div>
 );
 
-export default ConversationsListSkeleton;
+export const ChatPanelListCarouselSkeleton = () => (
+  <div className="flex flex-col gap-1">
+    <p className="echo-label mt-3 pl-1">Pinned</p>
+    <div className="flex gap-1 overflow-hidden px-1 py-1">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="shrink-0 basis-2/7 p-1">
+          <Skeleton className="h-24 w-full rounded-xl" />
+        </div>
+      ))}
+    </div>
+  </div>
+);

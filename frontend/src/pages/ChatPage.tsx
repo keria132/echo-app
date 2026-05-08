@@ -1,4 +1,4 @@
-import ConversationScreen from '@/components/chat/ConversationScreen';
+import ChatScreen from '@/components/chat/ChatScreen';
 import MessageInput from '@/components/chat/MessageInput';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -33,14 +33,14 @@ const ChatPage = () => {
         </Avatar>
         <div className="min-w-0 flex-1">
           <p className="mb-0.5 font-semibold">{selectedUser.name}</p>
-          {/* TODO: STATUS IS ONLINE, BACKEND FIRST */}
+          {/* TODO: STATUS IS ONLINE/LAST ONLINE, BACKEND FIRST */}
           <p className="text-echo-green w-full text-xs">online</p>
         </div>
         <Button variant="outline" className="size-9 rounded-md p-0">
           <Ellipsis className="text-echo-t2" />
         </Button>
       </div>
-      <ConversationScreen selectedUserId={selectedUser._id} name={selectedUser.name} />
+      <ChatScreen selectedUserId={selectedUser._id} name={selectedUser.name} />
       <MessageInput userId={selectedUser._id} />
     </section>
   );

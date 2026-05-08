@@ -4,7 +4,7 @@ import { loginSchema, signupSchema } from '../schemas/auth.schema.js';
 import User from '../models/User.js';
 import { AUTH_COOKIE_NAME, ERROR_MESSAGES, SALT_ROUNDS } from '../constants.js';
 import bcrypt from 'bcryptjs';
-import { generateToken } from '../lib/utils.js';
+import { generateHandle, generateToken } from '../lib/utils.js';
 import z from 'zod';
 import { sendWelcomeEmail } from '../emails/emailHandlers.js';
 import { env } from '../lib/env.js';
@@ -21,6 +21,8 @@ export const signup = async (request: Request, response: Response) => {
 
     const { name, email, password } = parseResult.data;
 
+    const handle = await generateHandle(name);
+
     const user = await User.findOne({ email });
     if (user) return response.status(400).json({ message: ERROR_MESSAGES.emailExists });
 
@@ -29,6 +31,7 @@ export const signup = async (request: Request, response: Response) => {
 
     const newUser = new User({
       name,
+      handle,
       email,
       password: hashedPassword,
     });
@@ -44,6 +47,7 @@ export const signup = async (request: Request, response: Response) => {
     return response.status(201).json({
       _id: newUser._id,
       name: newUser.name,
+      handle: newUser.handle,
       email: newUser.email,
       profileIcon: newUser.profileIcon,
     });
@@ -84,6 +88,7 @@ export const login = async (request: Request, response: Response) => {
     return response.status(200).json({
       _id: user._id,
       name: user.name,
+      handle: user.handle,
       email: user.email,
       profileIcon: user.profileIcon,
     });

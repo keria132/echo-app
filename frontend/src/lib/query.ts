@@ -5,6 +5,7 @@ import { getApiErrorMessage } from './utils';
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: error => {
+      console.error(error);
       toast.error(getApiErrorMessage(error));
     },
   }),

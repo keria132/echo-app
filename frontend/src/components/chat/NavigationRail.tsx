@@ -15,22 +15,30 @@ import {
 } from '../ui/alert-dialog';
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/store/useAppStore';
-import { NavLink } from 'react-router';
-import type { Dispatch, SetStateAction } from 'react';
+import { NavLink, useLocation } from 'react-router';
+import { useEffect, type Dispatch, type SetStateAction } from 'react';
 import { VisuallyHidden } from 'radix-ui';
-import notificationSound from '@/assets/sounds/notification.mp3';
+import notificationSound from '@/assets/sounds/notificationSound.mp3';
 
 const notificationsOnSound = new Audio(notificationSound);
 
 const NavigationRail = ({
-  setIsConversationsPanelOpen,
+  setIsChatPanelOpen,
   className,
 }: {
-  setIsConversationsPanelOpen: Dispatch<SetStateAction<boolean>>;
+  setIsChatPanelOpen: Dispatch<SetStateAction<boolean>>;
   className?: string;
 }) => {
   const { logout } = useAuthStore();
   const { isSoundEnabled, toggleSound } = useAppStore();
+
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.pathname !== '/') {
+      setIsChatPanelOpen(false);
+    }
+  }, [location.pathname, setIsChatPanelOpen]);
 
   return (
     <aside
@@ -40,7 +48,6 @@ const NavigationRail = ({
       )}
     >
       <EchoLogo className="size-10 rounded-lg shadow-[0_0_22px_var(--echo-p)]/38" iconClassName="size-5" />
-      {/* TODO: A BETTER APPROACH OF CLOSING THE PANEL WHEN MESSAGE TAB IS NOT ACTIVE */}
       <NavLink to="/">
         {({ isActive }) => (
           <NavigationItem
@@ -48,20 +55,14 @@ const NavigationRail = ({
             notification="1"
             icon={MessageCircle}
             iconClassName={cn('p-2.5')}
-            onClick={() => setIsConversationsPanelOpen(prev => !prev)}
+            onClick={() => setIsChatPanelOpen(prev => !prev)}
             isActive={isActive}
           />
         )}
       </NavLink>
-      <NavLink to="/profile">
-        {({ isActive }) => (
-          <NavigationItem icon={User} isActive={isActive} onClick={() => setIsConversationsPanelOpen(false)} />
-        )}
-      </NavLink>
+      <NavLink to="/profile">{({ isActive }) => <NavigationItem icon={User} isActive={isActive} />}</NavLink>
       <NavLink to="/settings" className="mt-auto">
-        {({ isActive }) => (
-          <NavigationItem icon={Settings} isActive={isActive} onClick={() => setIsConversationsPanelOpen(false)} />
-        )}
+        {({ isActive }) => <NavigationItem icon={Settings} isActive={isActive} />}
       </NavLink>
       <NavigationItem
         icon={isSoundEnabled ? Volume2 : VolumeOff}
