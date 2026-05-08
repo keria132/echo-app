@@ -42,7 +42,10 @@ export const normalizeChatUsers = (items: User[] | Chat[] | undefined, currentUs
     return items.flatMap(chat => {
       const partner = chat.participants.find(user => user._id !== currentUserId);
 
-      if (!partner) return [];
+      if (!partner) {
+        console.warn(`Chat ${chat._id} has no partner for user ${currentUserId}`);
+        return [];
+      }
 
       return {
         _id: partner._id,

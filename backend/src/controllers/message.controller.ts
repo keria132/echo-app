@@ -55,6 +55,7 @@ export const sendMessage = async (request: Request<RequestParams>, response: Res
     const senderSocket = getConnectedUsers().get(senderId.toString());
     const receiverSocket = getConnectedUsers().get(receiverId);
     const isReceiverSocketOpen = receiverSocket?.readyState === WebSocket.OPEN;
+    const isSenderSocketOpen = senderSocket?.readyState === WebSocket.OPEN;
 
     const newMessage = new Message({
       senderId,
@@ -86,11 +87,12 @@ export const sendMessage = async (request: Request<RequestParams>, response: Res
       if (isReceiverSocketOpen) {
         receiverSocket.send(JSON.stringify({ type: 'new_chat', payload: populatedChat }));
       }
-
-      senderSocket?.send(JSON.stringify({ type: 'new_chat', payload: populatedChat }));
+      if (isSenderSocketOpen) {
+        senderSocket.send(JSON.stringify({ type: 'new_chat', payload: populatedChat }));
+      }
     } else {
       existingChat.lastMessage = lastMessageData;
-      existingChat.save();
+      await existingChat.save();
     }
 
     if (isReceiverSocketOpen) {

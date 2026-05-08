@@ -49,12 +49,13 @@ export const updateProfile = async (request: Request, response: Response) => {
     const { profileIcon } = request.body;
     if (!profileIcon) return response.status(400).json({ message: ERROR_MESSAGES.profileIcon });
 
-    const userId = request.user?._id;
+    const loggedInUserId = request.user?._id;
+    if (!loggedInUserId) throw new Error(ERROR_MESSAGES.loggedUserIdUndefined);
 
     const uploadResult = await cloudinary.uploader.upload(profileIcon);
 
     const updatedUser = await User.findByIdAndUpdate(
-      userId,
+      loggedInUserId,
       { profileIcon: uploadResult.secure_url },
       { new: true },
     ).select(USER_PRIVATE_FIELDS);

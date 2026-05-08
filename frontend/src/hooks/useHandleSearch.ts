@@ -20,5 +20,10 @@ export const useHandleSearch = () => {
     }
   };
 
-  return { searchText, isSearchActive: searchText.trim().startsWith('@'), debouncedHandle, handleSearchUsers };
+  return {
+    searchText,
+    isSearchActive: searchText.trim().startsWith('@') && debouncedHandle !== '',
+    debouncedHandle,
+    handleSearchUsers,
+  };
 };

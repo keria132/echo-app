@@ -10,6 +10,7 @@ interface ChatPanelItemProps {
 
 const ChatPanelItem = ({ chatUser }: ChatPanelItemProps) => {
   const { selectedUser, setSelectedUser } = useAppStore();
+  console.log(chatUser.lastMessage);
 
   return (
     <div
@@ -28,7 +29,9 @@ const ChatPanelItem = ({ chatUser }: ChatPanelItemProps) => {
         <p className="mb-0.5 font-semibold">{chatUser.name}</p>
 
         <div className="text-echo-t2 w-full truncate text-xs">
-          {chatUser._id !== chatUser.lastMessage?.senderId && <span className="text-echo-p-light">You: </span>}
+          {chatUser.lastMessage && chatUser._id !== chatUser.lastMessage.senderId && (
+            <span className="text-echo-p-light">You: </span>
+          )}
           {chatUser.lastMessage?.text}
         </div>
       </div>
