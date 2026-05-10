@@ -62,7 +62,6 @@ export const signup = async (request: Request, response: Response) => {
 export const login = async (request: Request, response: Response) => {
   try {
     const parseResult = loginSchema.safeParse(request.body);
-
     if (!parseResult.success) {
       const errors = z.treeifyError(parseResult.error);
 
@@ -72,7 +71,6 @@ export const login = async (request: Request, response: Response) => {
     const { email, password } = parseResult.data;
 
     const user = await User.findOne({ email });
-
     if (!user) {
       return response.status(400).json({ message: ERROR_MESSAGES.invalidLogin });
     }

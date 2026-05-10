@@ -4,17 +4,35 @@ import cloudinary from '../lib/cloudinary.js';
 import User from '../models/User.js';
 import { ERROR_MESSAGES, USER_PRIVATE_FIELDS } from '../constants.js';
 import Chat from '../models/Chat.js';
+import { getConnectedUsers } from '../lib/socket.js';
 
 export const getChats = async (request: Request, response: Response) => {
   try {
     const loggedInUserId = request.user?._id;
     if (!loggedInUserId) throw new Error(ERROR_MESSAGES.loggedUserIdUndefined);
 
+    const onlineUsers = getConnectedUsers();
+
     const chats = await Chat.find({ participants: loggedInUserId })
       .populate('participants', USER_PRIVATE_FIELDS)
       .sort({ updatedAt: 'desc' });
 
-    return response.status(200).json(chats);
+    const chatsWithStatus = chats.map(chat => {
+      const chatObject = chat.toObject();
+
+      //TODO: SKIP GROUPCHATS FOR NOW, PATCH LATER
+      if (chatObject.participants.length > 2) return chatObject;
+
+      return {
+        ...chatObject,
+        participants: chatObject.participants.map(participant => ({
+          ...participant,
+          isOnline: onlineUsers.has(participant._id.toString()),
+        })),
+      };
+    });
+
+    return response.status(200).json(chatsWithStatus);
   } catch (error) {
     console.error('Error in getChats controller: ', error);
     Sentry.captureException(error);
@@ -33,9 +51,22 @@ export const searchUser = async (request: Request, response: Response) => {
       return response.status(400).json({ message: ERROR_MESSAGES.searchUser });
     }
 
+    const onlineUsers = getConnectedUsers();
+
     const users = await User.find({ handle, _id: { $ne: loggedInUserId } }).select(USER_PRIVATE_FIELDS);
 
-    return response.status(200).json(users);
+    //TODO: WE BROADCAST ONLINE STATUS FOR SEARCHED USERS ONLY ONCE PER REQUEST,
+    //CONSIDER ATTACHING WEBSOCKETS EVENT TO BROADCAST STATUS LIVE FOR SEARCHED RESULTS
+    const usersWithStatus = users.map(user => {
+      const userObject = user.toObject();
+
+      return {
+        ...userObject,
+        isOnline: onlineUsers.has(userObject._id.toString()),
+      };
+    });
+
+    return response.status(200).json(usersWithStatus);
   } catch (error) {
     console.error('Error in searchUser controller: ', error);
     Sentry.captureException(error);
