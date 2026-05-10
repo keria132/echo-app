@@ -30,6 +30,11 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    isPrivate: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
   },
   { timestamps: true },
 );

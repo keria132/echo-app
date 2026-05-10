@@ -53,6 +53,7 @@ export const normalizeChatUsers = (items: User[] | Chat[] | undefined, currentUs
         profileIcon: partner?.profileIcon,
         lastMessage: chat.lastMessage,
         unreadCount: chat.unreadCount,
+        isOnline: partner.isOnline,
       };
     });
   } else {
@@ -60,6 +61,7 @@ export const normalizeChatUsers = (items: User[] | Chat[] | undefined, currentUs
       _id: user._id,
       name: user.name,
       profileIcon: user.profileIcon,
+      isOnline: user.isOnline,
     }));
   }
 };

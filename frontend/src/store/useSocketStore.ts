@@ -17,6 +17,11 @@ interface SocketStoreState {
   disconnect: () => void;
 }
 
+interface StatusUpdatePayload {
+  userId: string;
+  isOnline: boolean;
+}
+
 type WSMessageType = {
   type: 'new_message';
   payload: Message;
@@ -27,7 +32,12 @@ type WSNewChatType = {
   payload: Chat;
 };
 
-type WSDataType = WSMessageType | WSNewChatType;
+type WSStatusUpdateType = {
+  type: 'user_status_update';
+  payload: StatusUpdatePayload;
+};
+
+type WSDataType = WSMessageType | WSNewChatType | WSStatusUpdateType;
 
 export const useSocketStore = create<SocketStoreState>((set, get) => ({
   socket: null,
@@ -44,35 +54,69 @@ export const useSocketStore = create<SocketStoreState>((set, get) => ({
         const { type, payload }: WSDataType = JSON.parse(event.data);
         const queryClient = getQueryClient();
 
-        if (type === 'new_message') {
-          if (useAppStore.getState().isSoundEnabled) {
-            newMessageSound.play().catch(console.error);
-          }
+        switch (type) {
+          case 'new_message':
+            if (useAppStore.getState().isSoundEnabled) {
+              newMessageSound.play().catch(console.error);
+            }
 
-          queryClient.setQueryData<Message[]>(messagesQueryOptions(payload.senderId).queryKey, prev =>
-            prev ? [...prev, payload] : [payload],
-          );
+            queryClient.setQueryData<Message[]>(messagesQueryOptions(payload.senderId).queryKey, prev =>
+              prev ? [...prev, payload] : [payload],
+            );
 
-          queryClient.setQueryData<Chat[]>(chatsQueryOptions().queryKey, prev =>
-            prev?.map(conv =>
-              conv.participants.some(participant => participant._id === payload.senderId)
-                ? {
-                    ...conv,
-                    lastMessage: { text: payload.text, createdAt: payload.createdAt, senderId: payload.senderId },
-                  }
-                : conv,
-            ),
-          );
-        }
+            queryClient.setQueryData<Chat[]>(chatsQueryOptions().queryKey, prev =>
+              prev?.map(conv =>
+                conv.participants.some(participant => participant._id === payload.senderId)
+                  ? {
+                      ...conv,
+                      lastMessage: { text: payload.text, createdAt: payload.createdAt, senderId: payload.senderId },
+                    }
+                  : conv,
+              ),
+            );
 
-        if (type === 'new_chat') {
-          if (useAppStore.getState().isSoundEnabled) {
-            newMessageSound.play().catch(console.error);
-          }
+            break;
 
-          queryClient.setQueryData<Chat[]>(chatsQueryOptions().queryKey, prev =>
-            prev ? [payload, ...prev] : [payload],
-          );
+          case 'new_chat':
+            if (useAppStore.getState().isSoundEnabled) {
+              newMessageSound.play().catch(console.error);
+            }
+
+            queryClient.setQueryData<Chat[]>(chatsQueryOptions().queryKey, prev =>
+              prev ? [payload, ...prev] : [payload],
+            );
+
+            break;
+
+          case 'user_status_update':
+            useAppStore.setState(state => {
+              if (!state.selectedUser || state.selectedUser._id !== payload.userId) return state;
+
+              return { selectedUser: { ...state.selectedUser, isOnline: payload.isOnline } };
+            });
+
+            queryClient.setQueryData<Chat[]>(chatsQueryOptions().queryKey, prev =>
+              prev
+                ? prev.map(chat => {
+                    const updatedParticipant = chat.participants.find(
+                      participant => participant._id === payload.userId,
+                    );
+
+                    if (updatedParticipant) {
+                      return {
+                        ...chat,
+                        participants: chat.participants.map(participant =>
+                          participant._id === payload.userId
+                            ? { ...participant, isOnline: payload.isOnline }
+                            : participant,
+                        ),
+                      };
+                    }
+
+                    return chat;
+                  })
+                : prev,
+            );
         }
       } catch (error) {
         console.error('Failed to parse WS message:', error);

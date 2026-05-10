@@ -10,7 +10,6 @@ interface ChatPanelItemProps {
 
 const ChatPanelItem = ({ chatUser }: ChatPanelItemProps) => {
   const { selectedUser, setSelectedUser } = useAppStore();
-  console.log(chatUser.lastMessage);
 
   return (
     <div
@@ -23,7 +22,12 @@ const ChatPanelItem = ({ chatUser }: ChatPanelItemProps) => {
       <Avatar size="lg">
         <AvatarImage alt="profile picture" src={chatUser.profileIcon} />
         <AvatarFallback>{chatUser.name.slice(0, 2).toUpperCase()}</AvatarFallback>
-        <AvatarBadge className="dark:bg-echo-green right-0.5 bottom-0.5 group-data-[size=lg]/avatar:size-2" />
+        <AvatarBadge
+          className={cn(
+            'right-0.5 bottom-0.5 hidden group-data-[size=lg]/avatar:size-2',
+            chatUser.isOnline && 'dark:bg-echo-green inline-flex',
+          )}
+        />
       </Avatar>
       <div className="min-w-0 flex-1">
         <p className="mb-0.5 font-semibold">{chatUser.name}</p>
