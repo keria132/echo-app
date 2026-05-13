@@ -18,6 +18,24 @@ export const getApiErrorMessage = (error: unknown): string => {
 export const formatMessageTime = (date: string) =>
   new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+const isSameDay = (a: Date, b: Date) =>
+  a.getDate() === b.getDate() && a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear();
+
+const dateFormatter = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long' });
+const dateFormatterWithYear = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+export const formatDateKey = (dateString: string): string => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  if (isSameDay(date, now)) return 'Today';
+  if (isSameDay(date, yesterday)) return 'Yesterday';
+
+  return date.getFullYear() !== now.getFullYear() ? dateFormatterWithYear.format(date) : dateFormatter.format(date);
+};
+
 export const imageToBase64 = (file: File): Promise<string> =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();

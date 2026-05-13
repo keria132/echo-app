@@ -1,13 +1,17 @@
 import { create } from 'zustand';
 import { createSocket } from '@/lib/socket';
 import type { Message } from '@/types/message.types';
-import { getQueryClient } from '@/lib/query';
-import { messagesQueryOptions } from '@/api/messages.api';
 import { toast } from 'sonner';
 import type { Chat } from '@/types/user.types';
-import { chatsQueryOptions } from '@/api/user.api';
 import notificationSound from '@/assets/sounds/newMessage.mp3';
 import { useAppStore } from './useAppStore';
+import {
+  setChatLastMessageCache,
+  setChatStatusUpdateCache,
+  setNewChatCache,
+  setNewMessageCache,
+  type ChatStatusUpdatePayload,
+} from '@/lib/cache';
 
 const newMessageSound = new Audio(notificationSound);
 
@@ -15,11 +19,6 @@ interface SocketStoreState {
   socket: WebSocket | null;
   connect: () => void;
   disconnect: () => void;
-}
-
-interface StatusUpdatePayload {
-  userId: string;
-  isOnline: boolean;
 }
 
 type WSMessageType = {
@@ -34,7 +33,7 @@ type WSNewChatType = {
 
 type WSStatusUpdateType = {
   type: 'user_status_update';
-  payload: StatusUpdatePayload;
+  payload: ChatStatusUpdatePayload;
 };
 
 type WSDataType = WSMessageType | WSNewChatType | WSStatusUpdateType;
@@ -52,7 +51,6 @@ export const useSocketStore = create<SocketStoreState>((set, get) => ({
     socket.onmessage = event => {
       try {
         const { type, payload }: WSDataType = JSON.parse(event.data);
-        const queryClient = getQueryClient();
 
         switch (type) {
           case 'new_message':
@@ -60,20 +58,8 @@ export const useSocketStore = create<SocketStoreState>((set, get) => ({
               newMessageSound.play().catch(console.error);
             }
 
-            queryClient.setQueryData<Message[]>(messagesQueryOptions(payload.senderId).queryKey, prev =>
-              prev ? [...prev, payload] : [payload],
-            );
-
-            queryClient.setQueryData<Chat[]>(chatsQueryOptions().queryKey, prev =>
-              prev?.map(conv =>
-                conv.participants.some(participant => participant._id === payload.senderId)
-                  ? {
-                      ...conv,
-                      lastMessage: { text: payload.text, createdAt: payload.createdAt, senderId: payload.senderId },
-                    }
-                  : conv,
-              ),
-            );
+            setNewMessageCache(payload);
+            setChatLastMessageCache(payload);
 
             break;
 
@@ -82,9 +68,7 @@ export const useSocketStore = create<SocketStoreState>((set, get) => ({
               newMessageSound.play().catch(console.error);
             }
 
-            queryClient.setQueryData<Chat[]>(chatsQueryOptions().queryKey, prev =>
-              prev ? [payload, ...prev] : [payload],
-            );
+            setNewChatCache(payload);
 
             break;
 
@@ -95,28 +79,7 @@ export const useSocketStore = create<SocketStoreState>((set, get) => ({
               return { selectedUser: { ...state.selectedUser, isOnline: payload.isOnline } };
             });
 
-            queryClient.setQueryData<Chat[]>(chatsQueryOptions().queryKey, prev =>
-              prev
-                ? prev.map(chat => {
-                    const updatedParticipant = chat.participants.find(
-                      participant => participant._id === payload.userId,
-                    );
-
-                    if (updatedParticipant) {
-                      return {
-                        ...chat,
-                        participants: chat.participants.map(participant =>
-                          participant._id === payload.userId
-                            ? { ...participant, isOnline: payload.isOnline }
-                            : participant,
-                        ),
-                      };
-                    }
-
-                    return chat;
-                  })
-                : prev,
-            );
+            setChatStatusUpdateCache(payload);
         }
       } catch (error) {
         console.error('Failed to parse WS message:', error);
