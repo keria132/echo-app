@@ -7,6 +7,7 @@ interface MessageProps {
   time: string | null;
   image?: string;
   status: MessageStatus;
+  ref?: React.RefCallback<HTMLDivElement>;
 }
 
 const DeliveryStatus = ({ status }: { status: MessageStatus }) => {
@@ -25,7 +26,7 @@ const DeliveryStatus = ({ status }: { status: MessageStatus }) => {
   }
 };
 
-const Message = ({ isOwnMessage, text, time, status }: MessageProps) => {
+const Message = ({ isOwnMessage, text, time, status, ref }: MessageProps) => {
   if (isOwnMessage)
     return (
       <div className="flex w-fit max-w-1/2 flex-wrap items-end justify-end gap-x-1 self-end">
@@ -36,7 +37,7 @@ const Message = ({ isOwnMessage, text, time, status }: MessageProps) => {
     );
 
   return (
-    <div className="flex w-fit max-w-1/2 flex-col">
+    <div className="flex w-fit max-w-1/2 flex-col" ref={ref}>
       <p className="bg-echo-raised rounded-xl rounded-bl px-4 py-2 text-sm">{text}</p>
       <sub className="text-echo-t3 text-xs">{time}</sub>
     </div>
@@ -44,27 +45,3 @@ const Message = ({ isOwnMessage, text, time, status }: MessageProps) => {
 };
 
 export default Message;
-
-{
-  /* <div className="flex w-fit max-w-1/2 flex-col">
-          <p className="bg-echo-raised rounded-xl rounded-bl px-4 py-2 text-sm">Huh?</p>
-          <sub className="text-echo-t3 text-xs">16:36</sub>
-        </div>
-
-        <div className="flex w-fit max-w-1/2 flex-col self-end">
-          <p className="bg-echo-gradient shadow-echo-sm rounded-xl rounded-br px-4 py-2 text-sm">Nothing much, wby?</p>
-          <sub className="text-echo-t3 flex justify-end gap-2 text-xs">
-            16:36 <CheckCheck className="text-echo-p size-4" />
-          </sub>
-        </div>
-
-        <div className="flex w-fit max-w-1/2 flex-col self-end">
-          <p className="bg-echo-gradient shadow-echo-sm rounded-xl rounded-br px-4 py-2 text-sm">
-            I've been doing, I've been doing, I've been doing, I've been doing, I've been doing,I've been doing,I've
-            been doing, I've been doing, wby?
-          </p>
-          <sub className="text-echo-t3 flex justify-end gap-2 text-xs">
-            16:36 <CheckCheck className="text-echo-p size-4" />
-          </sub>
-        </div> */
-}

@@ -4,7 +4,7 @@ import { useAppStore } from '@/store/useAppStore';
 import type { Message } from '@/types/message.types';
 import { useMutation } from '@tanstack/react-query';
 import notificationSound from '@/assets/sounds/notificationSound.mp3';
-import { setChatLastMessageCache, setNewMessageCache } from '@/lib/cache';
+import { replaceOptimisticMessageCache, setNewMessageCache } from '@/lib/cache';
 
 const newMessageSound = new Audio(notificationSound);
 
@@ -40,12 +40,7 @@ export const useMessageMutation = (senderId: string, receiverId: string) => {
         newMessageSound.play().catch(console.error);
       }
 
-      queryClient.setQueryData(
-        messagesQueryOptions(receiverId).queryKey,
-        prev => prev?.map(message => (message._id === context.messageTempId ? data : message)) ?? [],
-      );
-
-      setChatLastMessageCache(data, receiverId);
+      replaceOptimisticMessageCache(data, receiverId, context.messageTempId);
     },
 
     onError: (_, __, context) => {

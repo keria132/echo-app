@@ -17,20 +17,14 @@ export interface Chat {
     senderId: string;
     createdAt: string;
   };
-  unreadCount: number;
+  unreadCounts: Record<string, number>;
   createdAt: string;
   updatedAt: string;
+  chatIcon?: string;
+  chatName?: string;
 }
 
-export interface ChatListUser {
-  _id: string;
-  name: string;
-  profileIcon: string;
-  unreadCount?: number;
-  isOnline?: boolean;
-  lastMessage?: {
-    text: string;
-    senderId: string;
-    createdAt: string;
-  };
-}
+export type ChatItem =
+  | { kind: 'direct'; chat: Chat; partner: User; unreadCount: number }
+  | { kind: 'group'; chat: Chat; unreadCount: number }
+  | { kind: 'user'; user: User };

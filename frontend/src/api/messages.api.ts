@@ -17,7 +17,7 @@ export const sendMessage = async (userId: string, payload: { text: string; image
   return response.data;
 };
 
-export const messagesQueryOptions = (userId?: string) =>
+export const messagesQueryOptions = (userId: string | null) =>
   queryOptions({
     queryKey: [MESSAGES_QUERY_KEY, userId],
     queryFn: userId ? () => getMessagesByUserId(userId) : skipToken,

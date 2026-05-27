@@ -10,12 +10,27 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { formatDateKey, formatMessageTime } from '@/lib/utils';
 import { useEffect, useMemo, useRef } from 'react';
 import type { Message as MessageType } from '@/types/message.types';
+import { useMessageObserver } from '@/hooks/useMessageObserver';
 
 type MessageWithSeparator = { type: 'separator'; data: string } | { type: 'message'; data: MessageType };
 
-const ChatScreen = ({ selectedUserId, name }: { selectedUserId: string; name: string }) => {
-  const { data: messages, isLoading, isSuccess, isError, refetch } = useQuery(messagesQueryOptions(selectedUserId));
+interface ChatScreenProps {
+  chatPartnerId: string | null;
+  chatId: string | null;
+  name?: string;
+}
+
+const ChatScreen = ({ chatPartnerId, name, chatId }: ChatScreenProps) => {
+  const { data: messages, isLoading, isSuccess, isError, refetch } = useQuery(messagesQueryOptions(chatPartnerId));
   const { user } = useAuthStore();
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const { refCallback } = useMessageObserver({
+    observerRootRef: scrollAreaRef,
+    chatId,
+    partnerId: chatPartnerId,
+    currentUserId: user!._id,
+  });
+
   const sortedMessages = useMemo<MessageWithSeparator[]>(() => {
     if (!messages?.length) return [];
 
@@ -36,8 +51,6 @@ const ChatScreen = ({ selectedUserId, name }: { selectedUserId: string; name: st
 
     return results;
   }, [messages]);
-
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
@@ -99,7 +112,12 @@ const ChatScreen = ({ selectedUserId, name }: { selectedUserId: string; name: st
     <ScrollArea ref={scrollAreaRef} className="min-h-0 w-full flex-1">
       <div className="flex h-full flex-col gap-1 px-4 py-2">
         {sortedMessages?.map(({ type, data }, index) => {
-          if (type === 'separator') return <p className="echo-label text-center">{data}</p>;
+          if (type === 'separator')
+            return (
+              <p key={data} className="echo-label text-center">
+                {data}
+              </p>
+            );
 
           const next = sortedMessages[index + 1];
           const currentTime = formatMessageTime(data.createdAt);
@@ -114,6 +132,9 @@ const ChatScreen = ({ selectedUserId, name }: { selectedUserId: string; name: st
               isOwnMessage={data.senderId === user?._id}
               time={currentTime !== nextTime || currentSender !== nextSender ? currentTime : null}
               status={data.status}
+              ref={(element: HTMLDivElement) =>
+                refCallback({ element, _id: data._id, senderId: data.senderId, status: data.status })
+              }
             />
           );
         })}

@@ -1,4 +1,6 @@
-import type { Chat, User } from '@/types/user.types';
+import { useAppStore } from '@/store/useAppStore';
+import { useAuthStore } from '@/store/useAuthStore';
+import type { Chat } from '@/types/user.types';
 import axios from 'axios';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -51,39 +53,6 @@ export const imageToBase64 = (file: File): Promise<string> =>
     reader.readAsDataURL(file);
   });
 
-const isChats = (item: User[] | Chat[]): item is Chat[] => 'participants' in item[0];
-
-export const normalizeChatUsers = (items: User[] | Chat[] | undefined, currentUserId: string | undefined) => {
-  if (!items || !items.length || !currentUserId) return [];
-
-  if (isChats(items)) {
-    return items.flatMap(chat => {
-      const partner = chat.participants.find(user => user._id !== currentUserId);
-
-      if (!partner) {
-        console.warn(`Chat ${chat._id} has no partner for user ${currentUserId}`);
-        return [];
-      }
-
-      return {
-        _id: partner._id,
-        name: partner?.name,
-        profileIcon: partner?.profileIcon,
-        lastMessage: chat.lastMessage,
-        unreadCount: chat.unreadCount,
-        isOnline: partner.isOnline,
-      };
-    });
-  } else {
-    return items.map(user => ({
-      _id: user._id,
-      name: user.name,
-      profileIcon: user.profileIcon,
-      isOnline: user.isOnline,
-    }));
-  }
-};
-
 export const formatMessageLastTime = (date: string): string => {
   const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
 
@@ -91,4 +60,11 @@ export const formatMessageLastTime = (date: string): string => {
   if (seconds < 86400) return `${Math.floor(seconds / 3600)}h`;
   if (seconds < 604800) return `${Math.floor(seconds / 86400)}d`;
   return `${Math.floor(seconds / 604800)}w`;
+};
+
+export const updateNotifications = (chats: Chat[]) => {
+  const currentUserId = useAuthStore.getState().user?._id;
+  const total = chats.reduce((sum, conv) => sum + (conv.unreadCounts?.[currentUserId ?? ''] ?? 0), 0) ?? 0;
+
+  useAppStore.getState().setNotificationCount(total);
 };

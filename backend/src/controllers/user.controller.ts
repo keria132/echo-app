@@ -3,43 +3,22 @@ import * as Sentry from '@sentry/node';
 import cloudinary from '../lib/cloudinary.js';
 import User from '../models/User.js';
 import { ERROR_MESSAGES, USER_PRIVATE_FIELDS } from '../constants.js';
-import Chat from '../models/Chat.js';
 import { getConnectedUsers } from '../lib/socket.js';
 
-export const getChats = async (request: Request, response: Response) => {
-  try {
-    const loggedInUserId = request.user?._id;
-    if (!loggedInUserId) throw new Error(ERROR_MESSAGES.loggedUserIdUndefined);
+// export const patchViewed = async (request: Request, response: Response) => {
+//   try {
+//     // const loggedInUserId = request.user?._id;
+//     // if (!loggedInUserId) throw new Error(ERROR_MESSAGES.loggedUserIdUndefined);
 
-    const onlineUsers = getConnectedUsers();
+//     const { id } = request.params;
+//     if (!id) {
+//       return response.status(400).json({ message: ERROR_MESSAGES.invalidUserId });
+//     }
 
-    const chats = await Chat.find({ participants: loggedInUserId })
-      .populate('participants', USER_PRIVATE_FIELDS)
-      .sort({ updatedAt: 'desc' });
+//   } catch (error) {
 
-    const chatsWithStatus = chats.map(chat => {
-      const chatObject = chat.toObject();
-
-      //TODO: SKIP GROUPCHATS FOR NOW, PATCH LATER
-      if (chatObject.participants.length > 2) return chatObject;
-
-      return {
-        ...chatObject,
-        participants: chatObject.participants.map(participant => ({
-          ...participant,
-          isOnline: onlineUsers.has(participant._id.toString()),
-        })),
-      };
-    });
-
-    return response.status(200).json(chatsWithStatus);
-  } catch (error) {
-    console.error('Error in getChats controller: ', error);
-    Sentry.captureException(error);
-
-    return response.status(500).json({ message: ERROR_MESSAGES.serverError });
-  }
-};
+//   }
+// };
 
 export const searchUser = async (request: Request, response: Response) => {
   try {
@@ -53,7 +32,10 @@ export const searchUser = async (request: Request, response: Response) => {
 
     const onlineUsers = getConnectedUsers();
 
-    const users = await User.find({ handle, _id: { $ne: loggedInUserId } }).select(USER_PRIVATE_FIELDS);
+    const users = await User.find({
+      handle: { $regex: `^${handle}`, $options: 'i' },
+      _id: { $ne: loggedInUserId },
+    }).select(USER_PRIVATE_FIELDS);
 
     //TODO: WE BROADCAST ONLINE STATUS FOR SEARCHED USERS ONLY ONCE PER REQUEST,
     //CONSIDER ATTACHING WEBSOCKETS EVENT TO BROADCAST STATUS LIVE FOR SEARCHED RESULTS

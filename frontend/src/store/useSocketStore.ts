@@ -1,17 +1,20 @@
 import { create } from 'zustand';
 import { createSocket } from '@/lib/socket';
-import type { Message } from '@/types/message.types';
+import type { NewMessagePayload, UpdateMessagePayload } from '@/types/message.types';
 import { toast } from 'sonner';
 import type { Chat } from '@/types/user.types';
 import notificationSound from '@/assets/sounds/newMessage.mp3';
 import { useAppStore } from './useAppStore';
 import {
-  setChatLastMessageCache,
+  setChatNewMessageCache,
   setChatStatusUpdateCache,
   setNewChatCache,
   setNewMessageCache,
+  setViewedMessageCache,
   type ChatStatusUpdatePayload,
 } from '@/lib/cache';
+import { useAuthStore } from './useAuthStore';
+import { getChatUserId } from '@/lib/selectors';
 
 const newMessageSound = new Audio(notificationSound);
 
@@ -23,7 +26,7 @@ interface SocketStoreState {
 
 type WSMessageType = {
   type: 'new_message';
-  payload: Message;
+  payload: NewMessagePayload;
 };
 
 type WSNewChatType = {
@@ -36,7 +39,12 @@ type WSStatusUpdateType = {
   payload: ChatStatusUpdatePayload;
 };
 
-type WSDataType = WSMessageType | WSNewChatType | WSStatusUpdateType;
+type WSMessagesUpdate = {
+  type: 'messages_viewed';
+  payload: UpdateMessagePayload;
+};
+
+type WSDataType = WSMessageType | WSNewChatType | WSStatusUpdateType | WSMessagesUpdate;
 
 export const useSocketStore = create<SocketStoreState>((set, get) => ({
   socket: null,
@@ -53,33 +61,52 @@ export const useSocketStore = create<SocketStoreState>((set, get) => ({
         const { type, payload }: WSDataType = JSON.parse(event.data);
 
         switch (type) {
-          case 'new_message':
-            if (useAppStore.getState().isSoundEnabled) {
+          case 'new_message': {
+            const isMine = payload.message.senderId === useAuthStore.getState().user?._id;
+
+            if (!isMine && useAppStore.getState().isSoundEnabled) {
               newMessageSound.play().catch(console.error);
             }
 
-            setNewMessageCache(payload);
-            setChatLastMessageCache(payload);
+            if (!isMine) {
+              setNewMessageCache(payload.message);
+            }
+
+            setChatNewMessageCache(payload);
 
             break;
+          }
 
-          case 'new_chat':
+          case 'new_chat': {
             if (useAppStore.getState().isSoundEnabled) {
               newMessageSound.play().catch(console.error);
             }
 
             setNewChatCache(payload);
 
+            useAppStore.getState().upgradeUserToChat(payload);
+
             break;
+          }
 
-          case 'user_status_update':
+          case 'user_status_update': {
             useAppStore.setState(state => {
-              if (!state.selectedUser || state.selectedUser._id !== payload.userId) return state;
+              const chatId = getChatUserId(state.selectedChat);
+              if (!state.selectedChat || chatId !== payload.userId) return state;
 
-              return { selectedUser: { ...state.selectedUser, isOnline: payload.isOnline } };
+              return { selectedChat: { ...state.selectedChat, isOnline: payload.isOnline } };
             });
 
             setChatStatusUpdateCache(payload);
+
+            break;
+          }
+
+          case 'messages_viewed': {
+            setViewedMessageCache(payload.viewedBy, payload.messageIds);
+
+            break;
+          }
         }
       } catch (error) {
         console.error('Failed to parse WS message:', error);
