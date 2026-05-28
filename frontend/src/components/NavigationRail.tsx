@@ -52,7 +52,7 @@ const NavigationRail = ({
         {({ isActive }) => (
           <NavigationItem
             className={cn('mt-4')}
-            notification={notificationsCount > 0 ? notificationsCount : null}
+            notification={notificationsCount || undefined}
             icon={MessageCircle}
             iconClassName={cn('p-2.5')}
             onClick={() => setIsChatPanelOpen(prev => !prev)}
