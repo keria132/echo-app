@@ -1,14 +1,14 @@
-import mongoose, { HydratedDocument, InferSchemaType } from 'mongoose';
+import { HydratedDocument, InferSchemaType, model, Schema } from 'mongoose';
 
-const MessageSchema = new mongoose.Schema(
+const MessageSchema = new Schema(
   {
     senderId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
     receiverId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
@@ -25,11 +25,12 @@ const MessageSchema = new mongoose.Schema(
       enum: ['sent', 'viewed'],
       default: 'sent',
     },
+    viewedAt: Date,
   },
   { timestamps: true },
 );
 
-const Message = mongoose.model('Message', MessageSchema);
+const Message = model('Message', MessageSchema);
 
 export type MessageModelType = HydratedDocument<InferSchemaType<typeof MessageSchema>>;
 

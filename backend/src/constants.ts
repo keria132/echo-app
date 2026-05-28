@@ -19,6 +19,10 @@ export const ERROR_MESSAGES = {
   messageReceiverNotFound: 'User receiver is not found',
   selfMessage: 'Cannot send a message to yourself',
   searchUser: 'Handle is required',
+  invalidUserId: 'User id is invalid',
+  invalidMessageIds: 'Message IDs must be a non-empty array',
+  invalidChatId: 'Invalid chat ID',
+  chatNotFound: 'Chat not found',
 };
 const JWT_EXPIRATION_DAYS = 7;
 export const JWT_EXPIRATION_TIME = `${JWT_EXPIRATION_DAYS}d`;

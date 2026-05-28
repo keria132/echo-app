@@ -1,6 +1,6 @@
 import { LogOut, MessageCircle, Settings, User, Volume2, VolumeOff } from 'lucide-react';
-import EchoLogo from '../EchoLogo';
-import NavigationItem from '../NavigationItem';
+import EchoLogo from './EchoLogo';
+import NavigationItem from './NavigationItem';
 import { useAuthStore } from '@/store/useAuthStore';
 import {
   AlertDialog,
@@ -12,7 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '../ui/alert-dialog';
+} from './ui/alert-dialog';
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/store/useAppStore';
 import { NavLink, useLocation } from 'react-router';
@@ -30,7 +30,7 @@ const NavigationRail = ({
   className?: string;
 }) => {
   const { logout } = useAuthStore();
-  const { isSoundEnabled, toggleSound } = useAppStore();
+  const { isSoundEnabled, toggleSound, notificationsCount } = useAppStore();
 
   const location = useLocation();
 
@@ -52,7 +52,7 @@ const NavigationRail = ({
         {({ isActive }) => (
           <NavigationItem
             className={cn('mt-4')}
-            notification="1"
+            notification={notificationsCount > 0 ? notificationsCount : null}
             icon={MessageCircle}
             iconClassName={cn('p-2.5')}
             onClick={() => setIsChatPanelOpen(prev => !prev)}

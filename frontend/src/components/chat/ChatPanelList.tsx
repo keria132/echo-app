@@ -3,11 +3,12 @@ import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTi
 import { ChatPanelListSkeleton } from './ChatPanelListSkeleton';
 import { Button } from '../ui/button';
 import type { RefetchOptions } from '@tanstack/react-query';
-import type { ChatListUser } from '@/types/user.types';
 import ChatPanelItem from './ChatPanelItem';
+import type { ChatItem } from '@/types/user.types';
+import { getChatKey } from '@/lib/selectors';
 
 interface ChatPanelListProps {
-  chatUsers: ChatListUser[];
+  chatItems: ChatItem[];
   isLoading: boolean;
   isSuccess: boolean;
   isError: boolean;
@@ -15,7 +16,7 @@ interface ChatPanelListProps {
   refetch: (options?: RefetchOptions) => void;
 }
 
-const ChatPanelList = ({ chatUsers, isLoading, isSuccess, isError, isSearchActive, refetch }: ChatPanelListProps) => {
+const ChatPanelList = ({ chatItems, isLoading, isSuccess, isError, isSearchActive, refetch }: ChatPanelListProps) => {
   if (isLoading) return <ChatPanelListSkeleton />;
 
   if (isError) {
@@ -37,7 +38,7 @@ const ChatPanelList = ({ chatUsers, isLoading, isSuccess, isError, isSearchActiv
     );
   }
 
-  if (isSuccess && !chatUsers?.length) {
+  if (isSuccess && !chatItems?.length) {
     return (
       <Empty className="mt-8 border-none">
         <EmptyHeader>
@@ -61,7 +62,7 @@ const ChatPanelList = ({ chatUsers, isLoading, isSuccess, isError, isSearchActiv
     );
   }
 
-  return chatUsers?.map(chatUser => <ChatPanelItem key={chatUser._id} chatUser={chatUser} />);
+  return chatItems.map(chatItem => <ChatPanelItem key={getChatKey(chatItem)} chatItem={chatItem} />);
 };
 
 export default ChatPanelList;

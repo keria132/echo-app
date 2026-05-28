@@ -1,13 +1,20 @@
 import { create } from 'zustand';
 import { createSocket } from '@/lib/socket';
-import type { Message } from '@/types/message.types';
-import { getQueryClient } from '@/lib/query';
-import { messagesQueryOptions } from '@/api/messages.api';
+import type { NewMessagePayload, UpdateMessagePayload } from '@/types/message.types';
 import { toast } from 'sonner';
 import type { Chat } from '@/types/user.types';
-import { chatsQueryOptions } from '@/api/user.api';
 import notificationSound from '@/assets/sounds/newMessage.mp3';
 import { useAppStore } from './useAppStore';
+import {
+  setChatNewMessageCache,
+  setChatStatusUpdateCache,
+  setNewChatCache,
+  setNewMessageCache,
+  setViewedMessageCache,
+  type ChatStatusUpdatePayload,
+} from '@/lib/cache';
+import { useAuthStore } from './useAuthStore';
+import { getChatUserId } from '@/lib/selectors';
 
 const newMessageSound = new Audio(notificationSound);
 
@@ -17,14 +24,9 @@ interface SocketStoreState {
   disconnect: () => void;
 }
 
-interface StatusUpdatePayload {
-  userId: string;
-  isOnline: boolean;
-}
-
 type WSMessageType = {
   type: 'new_message';
-  payload: Message;
+  payload: NewMessagePayload;
 };
 
 type WSNewChatType = {
@@ -34,10 +36,15 @@ type WSNewChatType = {
 
 type WSStatusUpdateType = {
   type: 'user_status_update';
-  payload: StatusUpdatePayload;
+  payload: ChatStatusUpdatePayload;
 };
 
-type WSDataType = WSMessageType | WSNewChatType | WSStatusUpdateType;
+type WSMessagesUpdate = {
+  type: 'messages_viewed';
+  payload: UpdateMessagePayload;
+};
+
+type WSDataType = WSMessageType | WSNewChatType | WSStatusUpdateType | WSMessagesUpdate;
 
 export const useSocketStore = create<SocketStoreState>((set, get) => ({
   socket: null,
@@ -52,71 +59,63 @@ export const useSocketStore = create<SocketStoreState>((set, get) => ({
     socket.onmessage = event => {
       try {
         const { type, payload }: WSDataType = JSON.parse(event.data);
-        const queryClient = getQueryClient();
 
         switch (type) {
-          case 'new_message':
+          case 'new_message': {
+            const isMine = payload.message.senderId === useAuthStore.getState().user?._id;
+
+            if (!isMine && useAppStore.getState().isSoundEnabled) {
+              newMessageSound.play().catch(console.error);
+            }
+
+            if (!isMine) {
+              setNewMessageCache(payload.message);
+            }
+
+            setChatNewMessageCache(payload);
+
+            break;
+          }
+
+          case 'new_chat': {
             if (useAppStore.getState().isSoundEnabled) {
               newMessageSound.play().catch(console.error);
             }
 
-            queryClient.setQueryData<Message[]>(messagesQueryOptions(payload.senderId).queryKey, prev =>
-              prev ? [...prev, payload] : [payload],
-            );
+            setNewChatCache(payload);
 
-            queryClient.setQueryData<Chat[]>(chatsQueryOptions().queryKey, prev =>
-              prev?.map(conv =>
-                conv.participants.some(participant => participant._id === payload.senderId)
-                  ? {
-                      ...conv,
-                      lastMessage: { text: payload.text, createdAt: payload.createdAt, senderId: payload.senderId },
-                    }
-                  : conv,
-              ),
-            );
+            useAppStore.getState().upgradeUserToChat(payload);
 
             break;
+          }
 
-          case 'new_chat':
-            if (useAppStore.getState().isSoundEnabled) {
-              newMessageSound.play().catch(console.error);
-            }
-
-            queryClient.setQueryData<Chat[]>(chatsQueryOptions().queryKey, prev =>
-              prev ? [payload, ...prev] : [payload],
-            );
-
-            break;
-
-          case 'user_status_update':
+          case 'user_status_update': {
             useAppStore.setState(state => {
-              if (!state.selectedUser || state.selectedUser._id !== payload.userId) return state;
+              const chatId = getChatUserId(state.selectedChat);
+              if (!state.selectedChat || chatId !== payload.userId) return state;
 
-              return { selectedUser: { ...state.selectedUser, isOnline: payload.isOnline } };
+              if (state.selectedChat.kind === 'direct') {
+                return {
+                  selectedChat: {
+                    ...state.selectedChat,
+                    partner: { ...state.selectedChat.partner, isOnline: payload.isOnline },
+                  },
+                };
+              }
+
+              return state;
             });
 
-            queryClient.setQueryData<Chat[]>(chatsQueryOptions().queryKey, prev =>
-              prev
-                ? prev.map(chat => {
-                    const updatedParticipant = chat.participants.find(
-                      participant => participant._id === payload.userId,
-                    );
+            setChatStatusUpdateCache(payload);
 
-                    if (updatedParticipant) {
-                      return {
-                        ...chat,
-                        participants: chat.participants.map(participant =>
-                          participant._id === payload.userId
-                            ? { ...participant, isOnline: payload.isOnline }
-                            : participant,
-                        ),
-                      };
-                    }
+            break;
+          }
 
-                    return chat;
-                  })
-                : prev,
-            );
+          case 'messages_viewed': {
+            setViewedMessageCache(payload.viewedBy, payload.messageIds);
+
+            break;
+          }
         }
       } catch (error) {
         console.error('Failed to parse WS message:', error);

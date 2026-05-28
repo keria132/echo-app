@@ -1,9 +1,9 @@
 import type { RefetchOptions } from '@tanstack/react-query';
-import type { ChatListUser } from '@/types/user.types';
 import ChatPanelList from './ChatPanelList';
+import type { ChatItem } from '@/types/user.types';
 
 interface ChatsTabProps {
-  chatUsers: ChatListUser[];
+  chatItems: ChatItem[];
   isLoading: boolean;
   isSuccess: boolean;
   isError: boolean;
@@ -11,10 +11,10 @@ interface ChatsTabProps {
   refetch: (options?: RefetchOptions) => void;
 }
 
-const ChatsTab = ({ chatUsers = [], isSearchActive, ...listProps }: ChatsTabProps) => (
+const ChatsTab = ({ chatItems, isSearchActive, ...listProps }: ChatsTabProps) => (
   <div className="flex flex-col gap-1">
-    <p className="echo-label mt-3 pl-1">{isSearchActive ? 'Users' : 'Chats'}</p>
-    <ChatPanelList chatUsers={chatUsers} isSearchActive={isSearchActive} {...listProps} />
+    <p className="echo-label mt-3 pl-1">Users</p>
+    <ChatPanelList chatItems={chatItems} isSearchActive={isSearchActive} {...listProps} />
   </div>
 );
 

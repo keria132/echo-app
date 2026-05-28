@@ -80,6 +80,7 @@ export const sendMessage = async (request: Request<RequestParams>, response: Res
       const newChat = await Chat.create({
         participants: [senderId, receiverId],
         lastMessage: lastMessageData,
+        unreadCounts: { [receiverId]: 1 },
       });
 
       const populatedChat = await newChat.populate('participants', USER_PRIVATE_FIELDS);
@@ -91,12 +92,25 @@ export const sendMessage = async (request: Request<RequestParams>, response: Res
         senderSocket.send(JSON.stringify({ type: 'new_chat', payload: populatedChat }));
       }
     } else {
+      const lastUnreadCount = existingChat.unreadCounts.get(receiverId);
+      existingChat.unreadCounts.set(receiverId, (lastUnreadCount ?? 0) + 1);
       existingChat.lastMessage = lastMessageData;
-      await existingChat.save();
-    }
 
-    if (isReceiverSocketOpen) {
-      receiverSocket.send(JSON.stringify({ type: 'new_message', payload: newMessage }));
+      await existingChat.save();
+
+      const newMessagePayload = {
+        message: newMessage,
+        unreadCounts: Object.fromEntries(existingChat.unreadCounts),
+      };
+
+      //TODO: REVISIT THI EMIT PAYLOAD LATER TO UPDATE THE PARTICIPANTS UNREAD MESSAGES IN update_chat EVENT INSTEAD
+      if (isReceiverSocketOpen) {
+        receiverSocket.send(JSON.stringify({ type: 'new_message', payload: newMessagePayload }));
+      }
+
+      if (isSenderSocketOpen) {
+        senderSocket.send(JSON.stringify({ type: 'new_message', payload: newMessagePayload }));
+      }
     }
 
     return response.status(201).json(newMessage);
