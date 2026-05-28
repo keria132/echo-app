@@ -41,11 +41,6 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
 
       if (!currentUserId || !partner) return state;
 
-      return isUserMatch
-        ? {
-            ...state,
-            selectedChat: { kind: 'direct', chat, partner, unreadCount: chat.unreadCounts[currentUserId] ?? 0 },
-          }
-        : state;
+      return { selectedChat: { kind: 'direct', chat, partner, unreadCount: chat.unreadCounts[currentUserId] ?? 0 } };
     }),
 }));

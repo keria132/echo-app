@@ -8,8 +8,8 @@ const DEBOUNCE_MS = 500;
 interface UseMessageObserverParameters {
   observerRootRef: React.RefObject<HTMLDivElement | null>;
   currentUserId: string;
-  partnerId: string | null;
-  chatId: string | null;
+  partnerId?: string;
+  chatId?: string;
 }
 
 interface RefCallbackParameters {

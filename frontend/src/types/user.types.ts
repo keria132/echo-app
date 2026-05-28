@@ -20,8 +20,6 @@ export interface Chat {
   unreadCounts: Record<string, number>;
   createdAt: string;
   updatedAt: string;
-  chatIcon?: string;
-  chatName?: string;
 }
 
 export type ChatItem =

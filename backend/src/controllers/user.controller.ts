@@ -5,21 +5,6 @@ import User from '../models/User.js';
 import { ERROR_MESSAGES, USER_PRIVATE_FIELDS } from '../constants.js';
 import { getConnectedUsers } from '../lib/socket.js';
 
-// export const patchViewed = async (request: Request, response: Response) => {
-//   try {
-//     // const loggedInUserId = request.user?._id;
-//     // if (!loggedInUserId) throw new Error(ERROR_MESSAGES.loggedUserIdUndefined);
-
-//     const { id } = request.params;
-//     if (!id) {
-//       return response.status(400).json({ message: ERROR_MESSAGES.invalidUserId });
-//     }
-
-//   } catch (error) {
-
-//   }
-// };
-
 export const searchUser = async (request: Request, response: Response) => {
   try {
     const loggedInUserId = request.user?._id;

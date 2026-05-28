@@ -42,8 +42,8 @@ const ChatPage = () => {
           <Ellipsis className="text-echo-t2" />
         </Button>
       </div>
-      <ChatScreen chatPartnerId={chatProperties.partnedId} name={chatProperties.name} chatId={chatProperties.chatId} />
-      {chatProperties.partnedId && <MessageInput userId={chatProperties.partnedId} />}
+      <ChatScreen chatPartnerId={chatProperties.partnerId} name={chatProperties.name} chatId={chatProperties.chatId} />
+      {chatProperties.partnerId && <MessageInput userId={chatProperties.partnerId} />}
     </section>
   );
 };

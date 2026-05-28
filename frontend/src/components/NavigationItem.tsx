@@ -3,7 +3,7 @@ import { Badge } from './ui/badge';
 import type { LucideIcon } from 'lucide-react';
 
 interface NotificationBadgeProps {
-  notification?: number | null;
+  notification?: number;
   className?: string;
   icon: LucideIcon;
   onClick?: () => void;

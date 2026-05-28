@@ -7,10 +7,16 @@ interface ChatAdapterParams {
   searchText?: string;
 }
 
+interface UserAdapterParams {
+  searchedUsers: User[];
+  chats: Chat[];
+  currentUserId: string;
+}
+
 export const chatAdapter = ({ chats, currentUserId }: ChatAdapterParams): ChatItem[] =>
-  chats.flatMap(chat => {
+  chats.flatMap((chat): ChatItem[] => {
     if (chat.participants.length > 2) {
-      return { kind: 'group', chat, unreadCount: chat.unreadCounts[currentUserId] ?? 0 };
+      return [{ kind: 'group', chat, unreadCount: chat.unreadCounts[currentUserId] ?? 0 }];
     }
 
     const partner = chat.participants.find(participant => participant._id !== currentUserId);
@@ -22,20 +28,14 @@ export const chatAdapter = ({ chats, currentUserId }: ChatAdapterParams): ChatIt
       return [];
     }
 
-    return { kind: 'direct', chat, partner: partner, unreadCount: chat.unreadCounts[currentUserId] ?? 0 };
+    return [{ kind: 'direct', chat, partner: partner, unreadCount: chat.unreadCounts[currentUserId] ?? 0 }];
   });
-
-interface UserAdapterParams {
-  searchedUsers: User[];
-  chats: Chat[];
-  currentUserId: string;
-}
 
 export const userAdapter = ({ searchedUsers, chats, currentUserId }: UserAdapterParams): ChatItem[] => {
   const chatsMap = new Map<string, Chat>();
 
   chats.forEach(chat => {
-    if (!(chat.participants.length === 2)) return;
+    if (chat.participants.length !== 2) return;
 
     const partnerId = chat.participants.find(participant => participant._id !== currentUserId)?._id;
     if (!partnerId) return;

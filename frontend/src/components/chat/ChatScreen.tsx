@@ -15,8 +15,8 @@ import { useMessageObserver } from '@/hooks/useMessageObserver';
 type MessageWithSeparator = { type: 'separator'; data: string } | { type: 'message'; data: MessageType };
 
 interface ChatScreenProps {
-  chatPartnerId: string | null;
-  chatId: string | null;
+  chatPartnerId?: string;
+  chatId?: string;
   name?: string;
 }
 

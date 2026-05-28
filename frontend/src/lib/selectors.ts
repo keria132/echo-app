@@ -1,9 +1,14 @@
-import type { ChatItem } from '@/types/user.types';
+import type { Chat, ChatItem } from '@/types/user.types';
 
-// export const getChatItemKey = (chatItem: ChatItem) => {
-//   if (chatItem.kind === 'user') return chatItem.user._id;
-//   return chatItem.chat._id;
-// };
+interface GetChatItemPropsReturn {
+  chatId?: string;
+  icon?: string;
+  name?: string;
+  isOnline?: boolean;
+  lastMessage?: Chat['lastMessage'];
+  unreadCount?: number;
+  partnerId?: string;
+}
 
 export const getChatKey = (chatItem: ChatItem) => {
   if (chatItem.kind === 'user') return chatItem.user._id;
@@ -17,16 +22,13 @@ export const getChatUserId = (chatItem: ChatItem | null) => {
   return chatItem.chat._id;
 };
 
-export const getChatItemProperties = (chatItem: ChatItem) => {
+export const getChatItemProperties = (chatItem: ChatItem): GetChatItemPropsReturn => {
   if (chatItem.kind === 'user') {
     return {
-      chatId: null,
       icon: chatItem.user.profileIcon,
       name: chatItem.user.name,
       isOnline: chatItem.user.isOnline,
-      lastMessage: null,
-      unreadCount: null,
-      partnedId: chatItem.user._id,
+      partnerId: chatItem.user._id,
     };
   }
 
@@ -38,17 +40,13 @@ export const getChatItemProperties = (chatItem: ChatItem) => {
       isOnline: chatItem.partner.isOnline,
       lastMessage: chatItem.chat.lastMessage,
       unreadCount: chatItem.unreadCount,
-      partnedId: chatItem.partner._id,
+      partnerId: chatItem.partner._id,
     };
   }
 
   return {
     chatId: chatItem.chat._id,
-    icon: chatItem.chat.chatIcon,
-    name: chatItem.chat.chatName,
-    isOnline: null,
     lastMessage: chatItem.chat.lastMessage,
     unreadCount: chatItem.unreadCount,
-    partnedId: null,
   };
 };

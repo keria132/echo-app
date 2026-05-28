@@ -94,7 +94,16 @@ export const useSocketStore = create<SocketStoreState>((set, get) => ({
               const chatId = getChatUserId(state.selectedChat);
               if (!state.selectedChat || chatId !== payload.userId) return state;
 
-              return { selectedChat: { ...state.selectedChat, isOnline: payload.isOnline } };
+              if (state.selectedChat.kind === 'direct') {
+                return {
+                  selectedChat: {
+                    ...state.selectedChat,
+                    partner: { ...state.selectedChat.partner, isOnline: payload.isOnline },
+                  },
+                };
+              }
+
+              return state;
             });
 
             setChatStatusUpdateCache(payload);
