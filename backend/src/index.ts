@@ -1,8 +1,9 @@
 import * as Sentry from '@sentry/node';
-import express from 'express';
+import express, { json } from 'express';
 import authRoutes from './routes/auth.route.js';
 import userRoutes from './routes/user.route.js';
 import messageRoutes from './routes/message.route.js';
+import chatRoutes from './routes/chat.route.js';
 import path from 'node:path';
 import { connectDB } from './lib/db.js';
 import { DEFAULT_PORT, EXPRESS_JSON_LIMIT } from './constants.js';
@@ -19,12 +20,13 @@ const __dirname = path.resolve();
 const PORT = process.env.PORT || DEFAULT_PORT;
 
 app.use(cors({ origin: env.CLIENT_URL, credentials: true }));
-app.use(express.json({ limit: EXPRESS_JSON_LIMIT }));
+app.use(json({ limit: EXPRESS_JSON_LIMIT }));
 app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/chats', chatRoutes);
 
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../frontend/dist')));

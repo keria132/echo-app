@@ -1,6 +1,7 @@
-import mongoose, { HydratedDocument, InferSchemaType, Types } from 'mongoose';
+import { model, Schema } from 'mongoose';
+import { HydratedDocument, InferSchemaType, Types } from 'mongoose';
 
-const ChatSchema = new mongoose.Schema(
+const ChatSchema = new Schema(
   {
     participants: [{ type: Types.ObjectId, ref: 'User' }],
     lastMessage: {
@@ -8,12 +9,16 @@ const ChatSchema = new mongoose.Schema(
       senderId: { type: Types.ObjectId, ref: 'User' },
       createdAt: Date,
     },
-    unreadCount: { type: Number, default: 0 },
+    unreadCounts: { type: Map, of: Number, default: {} },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    toObject: { flattenMaps: true },
+    toJSON: { flattenMaps: true },
+  },
 );
 
-const Chat = mongoose.model('Chat', ChatSchema);
+const Chat = model('Chat', ChatSchema);
 
 export type ChatModelType = HydratedDocument<InferSchemaType<typeof ChatSchema>>;
 

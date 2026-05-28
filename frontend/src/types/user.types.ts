@@ -1,7 +1,10 @@
 export interface User {
   _id: string;
   name: string;
+  handle: string;
   profileIcon: string;
+  isOnline?: boolean;
+  isPrivate: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -14,19 +17,12 @@ export interface Chat {
     senderId: string;
     createdAt: string;
   };
-  unreadCount: number;
+  unreadCounts: Record<string, number>;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface ChatListUser {
-  _id: string;
-  name: string;
-  profileIcon: string;
-  lastMessage?: {
-    text: string;
-    createdAt: string;
-    senderId: string;
-  };
-  unreadCount?: number;
-}
+export type ChatItem =
+  | { kind: 'direct'; chat: Chat; partner: User; unreadCount: number }
+  | { kind: 'group'; chat: Chat; unreadCount: number }
+  | { kind: 'user'; user: User };

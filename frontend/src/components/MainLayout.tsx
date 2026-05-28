@@ -1,14 +1,18 @@
 import { Outlet } from 'react-router';
-import NavigationRail from './chat/NavigationRail';
+import NavigationRail from './NavigationRail';
 import ChatPanel from './chat/ChatPanel';
-import { useState } from 'react';
-import { cn } from '@/lib/utils';
+import { useEffect, useState } from 'react';
+import { cn, updateNotifications } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
-import { chatsQueryOptions } from '@/api/user.api';
+import { chatsQueryOptions } from '@/api/chat.api';
 
 const MainLayout = () => {
   const [isChatPanelOpen, setIsChatPanelOpen] = useState(false);
-  useQuery(chatsQueryOptions());
+  const { data: chats } = useQuery(chatsQueryOptions());
+
+  useEffect(() => {
+    if (chats) updateNotifications(chats);
+  }, [chats]);
 
   return (
     <div className="bg-echo-bg grain flex h-screen w-full overflow-hidden">

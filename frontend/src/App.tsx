@@ -13,15 +13,13 @@ import ProfilePage from './pages/ProflePage';
 import SettingsPage from './pages/SettingsPage';
 
 function App() {
-  const { user, authenticate, isAuthenticated } = useAuthStore();
+  const { authenticate, isAuthenticated } = useAuthStore();
 
   useEffect(() => {
     authenticate();
   }, [authenticate]);
 
   if (!isAuthenticated) return <p>Loading...</p>;
-
-  console.log(user);
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="echo-theme">

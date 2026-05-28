@@ -1,3 +1,5 @@
+import type { Chat } from './user.types';
+
 export type MessageStatus = 'sending' | 'failed' | 'sent' | 'viewed';
 
 export interface Message {
@@ -9,4 +11,15 @@ export interface Message {
   createdAt: string;
   updatedAt: string;
   status: MessageStatus;
+}
+
+export interface NewMessagePayload {
+  message: Message;
+  unreadCounts: Chat['unreadCounts'];
+}
+
+export interface UpdateMessagePayload {
+  chatId: string;
+  messageIds: string[];
+  viewedBy: string;
 }

@@ -1,16 +1,17 @@
 import { Plus, Search } from 'lucide-react';
-import { cn, normalizeChatUsers } from '@/lib/utils';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '../ui/input-group';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { chatsQueryOptions, searchUsersQueryOptions } from '@/api/user.api';
+import { searchUsersQueryOptions } from '@/api/user.api';
 import ChatsTab from './ChatsTab';
 import { useAuthStore } from '@/store/useAuthStore';
-import type { ChatListUser } from '@/types/user.types';
 import { useHandleSearch } from '@/hooks/useHandleSearch';
+import { chatsQueryOptions } from '@/api/chat.api';
+import { cn } from '@/lib/utils';
+import { chatAdapter, userAdapter } from '@/lib/adapters';
 
 const ChatPanel = ({ className }: { className?: string }) => {
   const { searchText, isSearchActive, debouncedHandle, handleSearchUsers } = useHandleSearch();
@@ -19,17 +20,29 @@ const ChatPanel = ({ className }: { className?: string }) => {
   const { data: chats, isLoading, isSuccess, isError, refetch } = useQuery(chatsQueryOptions());
   const {
     data: searchedUsers,
-    isLoading: isLoadingSearch,
-    isSuccess: isSuccessSearch,
-    isError: isErrorSearch,
+    isLoading: isSearchLoading,
+    isSuccess: isSearchSuccess,
+    isError: isSearchError,
     refetch: refetchSearch,
   } = useQuery(searchUsersQueryOptions(debouncedHandle));
 
-  const chatListUsers = useMemo<ChatListUser[]>(
-    () =>
-      isSearchActive ? normalizeChatUsers(searchedUsers, currentUserId) : normalizeChatUsers(chats, currentUserId),
-    [isSearchActive, searchedUsers, chats, currentUserId],
-  );
+  const chatItems = useMemo(() => {
+    if (!currentUserId) return [];
+
+    if (isSearchActive && chats && searchedUsers) {
+      const items = userAdapter({ searchedUsers, chats, currentUserId });
+
+      return items;
+    }
+
+    if (!isSearchActive && chats) {
+      const items = chatAdapter({ chats, currentUserId, searchText });
+
+      return items;
+    }
+
+    return [];
+  }, [isSearchActive, searchedUsers, chats, searchText, currentUserId]);
 
   return (
     <div
@@ -87,10 +100,10 @@ const ChatPanel = ({ className }: { className?: string }) => {
         </TabsList>
         <TabsContent value="all" className="w-full">
           <ChatsTab
-            chatUsers={chatListUsers}
-            isLoading={isSearchActive ? isLoadingSearch : isLoading}
-            isSuccess={isSearchActive ? isSuccessSearch : isSuccess}
-            isError={isSearchActive ? isErrorSearch : isError}
+            chatItems={chatItems}
+            isLoading={isSearchActive ? isSearchLoading : isLoading}
+            isSuccess={isSearchActive ? isSearchSuccess : isSuccess}
+            isError={isSearchActive ? isSearchError : isError}
             refetch={isSearchActive ? refetchSearch : refetch}
             isSearchActive={isSearchActive}
           />

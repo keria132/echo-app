@@ -1,13 +1,12 @@
-import mongoose, { HydratedDocument, InferSchemaType } from 'mongoose';
+import { HydratedDocument, InferSchemaType, model, Schema } from 'mongoose';
 import { NAME_MAX_LENGTH, PASSWORD_MIN_LENGTH } from '../constants.js';
 
-const UserSchema = new mongoose.Schema(
+const UserSchema = new Schema(
   {
     name: {
       type: String,
       required: true,
       maxLength: NAME_MAX_LENGTH,
-      lowercase: true,
     },
     handle: {
       type: String,
@@ -30,11 +29,16 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    isPrivate: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
   },
   { timestamps: true },
 );
 
-const User = mongoose.model('User', UserSchema);
+const User = model('User', UserSchema);
 
 export type UserModelType = HydratedDocument<InferSchemaType<typeof UserSchema>>;
 

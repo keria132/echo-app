@@ -1,11 +1,10 @@
 import { messagesQueryOptions, sendMessage } from '@/api/messages.api';
-import { chatsQueryOptions } from '@/api/user.api';
 import { getQueryClient } from '@/lib/query';
 import { useAppStore } from '@/store/useAppStore';
 import type { Message } from '@/types/message.types';
-import type { Chat } from '@/types/user.types';
 import { useMutation } from '@tanstack/react-query';
 import notificationSound from '@/assets/sounds/notificationSound.mp3';
+import { replaceOptimisticMessageCache, setNewMessageCache } from '@/lib/cache';
 
 const newMessageSound = new Audio(notificationSound);
 
@@ -31,9 +30,7 @@ export const useMessageMutation = (senderId: string, receiverId: string) => {
         updatedAt: new Date().toISOString(),
       };
 
-      queryClient.setQueryData(messagesQueryOptions(receiverId).queryKey, prev =>
-        prev ? [...prev, optimisticMessage] : [optimisticMessage],
-      );
+      setNewMessageCache(optimisticMessage, receiverId);
 
       return { previousMessages, messageTempId: optimisticMessage._id };
     },
@@ -43,18 +40,7 @@ export const useMessageMutation = (senderId: string, receiverId: string) => {
         newMessageSound.play().catch(console.error);
       }
 
-      queryClient.setQueryData(
-        messagesQueryOptions(receiverId).queryKey,
-        prev => prev?.map(message => (message._id === context.messageTempId ? data : message)) ?? [],
-      );
-
-      queryClient.setQueryData<Chat[]>(chatsQueryOptions().queryKey, prev =>
-        prev?.map(conv =>
-          conv.participants.some(participant => participant._id === receiverId)
-            ? { ...conv, lastMessage: { text: data.text, createdAt: data.createdAt, senderId: data.senderId } }
-            : conv,
-        ),
-      );
+      replaceOptimisticMessageCache(data, receiverId, context.messageTempId);
     },
 
     onError: (_, __, context) => {
