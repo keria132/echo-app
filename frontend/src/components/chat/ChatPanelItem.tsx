@@ -4,13 +4,14 @@ import { Badge } from '../ui/badge';
 import { cn, formatMessageLastTime } from '@/lib/utils';
 import type { ChatItem } from '@/types/user.types';
 import { getChatItemProperties, getChatUserId } from '@/lib/selectors';
+import { TAILWIND_MD_SCREEN_PX } from '@/constants';
 
 interface ChatPanelItemProps {
   chatItem: ChatItem;
 }
 
 const ChatPanelItem = ({ chatItem }: ChatPanelItemProps) => {
-  const { selectedChat, setSelectedChat } = useAppStore();
+  const { selectedChat, setSelectedChat, setIsChatPanelOpen } = useAppStore();
   const userId = getChatUserId(chatItem);
   const selectedUserId = getChatUserId(selectedChat);
   const chatProperties = getChatItemProperties(chatItem);
@@ -21,7 +22,10 @@ const ChatPanelItem = ({ chatItem }: ChatPanelItemProps) => {
         'hover:bg-echo-raised flex cursor-pointer items-center gap-2 rounded-lg p-2',
         selectedUserId === userId && 'bg-echo-p-pale echo-active-indicator',
       )}
-      onClick={() => setSelectedChat(chatItem)}
+      onClick={() => {
+        setSelectedChat(chatItem);
+        if (window.innerWidth < TAILWIND_MD_SCREEN_PX) setIsChatPanelOpen(false);
+      }}
     >
       <Avatar size="lg">
         <AvatarImage alt="profile picture" src={chatProperties.icon} />

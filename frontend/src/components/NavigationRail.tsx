@@ -16,21 +16,15 @@ import {
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/store/useAppStore';
 import { NavLink, useLocation } from 'react-router';
-import { useEffect, type Dispatch, type SetStateAction } from 'react';
+import { useEffect } from 'react';
 import { VisuallyHidden } from 'radix-ui';
 import notificationSound from '@/assets/sounds/notificationSound.mp3';
 
 const notificationsOnSound = new Audio(notificationSound);
 
-const NavigationRail = ({
-  setIsChatPanelOpen,
-  className,
-}: {
-  setIsChatPanelOpen: Dispatch<SetStateAction<boolean>>;
-  className?: string;
-}) => {
+const NavigationRail = ({ className }: { className?: string }) => {
   const { logout } = useAuthStore();
-  const { isSoundEnabled, toggleSound, notificationsCount } = useAppStore();
+  const { isSoundEnabled, toggleSound, notificationsCount, setIsChatPanelOpen } = useAppStore();
 
   const location = useLocation();
 
@@ -43,7 +37,7 @@ const NavigationRail = ({
   return (
     <aside
       className={cn(
-        'bg-echo-surface border-echo-border sticky left-0 flex w-17 shrink-0 flex-col items-center gap-y-2 border-r py-4',
+        'bg-echo-surface border-echo-border sticky left-0 flex w-14 shrink-0 flex-col items-center gap-y-2 border-r py-4 md:w-17',
         className,
       )}
     >
@@ -78,7 +72,7 @@ const NavigationRail = ({
         <AlertDialogTrigger asChild>
           <NavigationItem icon={LogOut} />
         </AlertDialogTrigger>
-        <AlertDialogContent>
+        <AlertDialogContent className="gap-y-2">
           <AlertDialogHeader>
             <AlertDialogTitle>Do you want to log out of the account?</AlertDialogTitle>
           </AlertDialogHeader>

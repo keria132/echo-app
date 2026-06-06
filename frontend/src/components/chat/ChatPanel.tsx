@@ -47,7 +47,7 @@ const ChatPanel = ({ className }: { className?: string }) => {
   return (
     <div
       className={cn(
-        'bg-echo-surface border-echo-border flex h-full w-90 shrink-0 flex-col gap-y-2 border-r p-4 opacity-100 transition-opacity duration-300',
+        'bg-echo-surface border-echo-border flex h-full w-full shrink-0 flex-col gap-y-2 border-r p-4 opacity-100 transition-opacity duration-300 md:w-90',
         className,
       )}
     >
