@@ -15,8 +15,7 @@ import {
 } from './ui/alert-dialog';
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/store/useAppStore';
-import { NavLink, useLocation } from 'react-router';
-import { useEffect } from 'react';
+import { NavLink } from 'react-router';
 import { VisuallyHidden } from 'radix-ui';
 import notificationSound from '@/assets/sounds/notificationSound.mp3';
 
@@ -25,14 +24,6 @@ const notificationsOnSound = new Audio(notificationSound);
 const NavigationRail = ({ className }: { className?: string }) => {
   const { logout } = useAuthStore();
   const { isSoundEnabled, toggleSound, notificationsCount, setIsChatPanelOpen } = useAppStore();
-
-  const location = useLocation();
-
-  useEffect(() => {
-    if (location.pathname !== '/') {
-      setIsChatPanelOpen(false);
-    }
-  }, [location.pathname, setIsChatPanelOpen]);
 
   return (
     <aside
@@ -54,8 +45,10 @@ const NavigationRail = ({ className }: { className?: string }) => {
           />
         )}
       </NavLink>
-      <NavLink to="/profile">{({ isActive }) => <NavigationItem icon={User} isActive={isActive} />}</NavLink>
-      <NavLink to="/settings" className="mt-auto">
+      <NavLink to="/profile" onClick={() => setIsChatPanelOpen(false)}>
+        {({ isActive }) => <NavigationItem icon={User} isActive={isActive} />}
+      </NavLink>
+      <NavLink to="/settings" className="mt-auto" onClick={() => setIsChatPanelOpen(false)}>
         {({ isActive }) => <NavigationItem icon={Settings} isActive={isActive} />}
       </NavLink>
       <NavigationItem

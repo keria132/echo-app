@@ -24,7 +24,7 @@ const MainLayout = () => {
             'shrink-0 overflow-hidden transition-[width] duration-300 ease-in-out',
             'md:relative md:block',
             'absolute inset-y-0 left-0 z-10',
-            isChatPanelOpen ? 'w-full md:w-90' : 'w-0',
+            isChatPanelOpen ? 'w-full md:w-90' : 'pointer-events-none w-0',
           )}
         >
           <ChatPanel className={isChatPanelOpen ? '' : 'opacity-0'} />

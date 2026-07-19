@@ -4,7 +4,7 @@ import { Badge } from '../ui/badge';
 import { cn, formatMessageLastTime } from '@/lib/utils';
 import type { ChatItem } from '@/types/user.types';
 import { getChatItemProperties, getChatUserId } from '@/lib/selectors';
-import { TAILWIND_MD_SCREEN_PX } from '@/constants';
+import { TAILWIND_MD_SCREEN_PX } from '@/constants/tailwind';
 
 interface ChatPanelItemProps {
   chatItem: ChatItem;

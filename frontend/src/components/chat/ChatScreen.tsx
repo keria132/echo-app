@@ -110,34 +110,36 @@ const ChatScreen = ({ chatPartnerId, name, chatId }: ChatScreenProps) => {
 
   return (
     <ScrollArea ref={scrollAreaRef} className="min-h-0 w-full flex-1">
-      <div className="flex h-full flex-col gap-1 px-4 py-2">
-        {sortedMessages?.map(({ type, data }, index) => {
-          if (type === 'separator')
+      <div className="flex h-full flex-col-reverse gap-1 px-4 py-2">
+        {sortedMessages
+          ?.map(({ type, data }, index) => {
+            if (type === 'separator')
+              return (
+                <p key={data} className="echo-label text-center">
+                  {data}
+                </p>
+              );
+
+            const next = sortedMessages[index + 1];
+            const currentTime = formatMessageTime(data.createdAt);
+            const currentSender = data.senderId;
+            const nextTime = next?.type === 'message' ? formatMessageTime(next.data.createdAt) : null;
+            const nextSender = next?.type === 'message' && next.data.senderId;
+
             return (
-              <p key={data} className="echo-label text-center">
-                {data}
-              </p>
+              <Message
+                key={data._id}
+                text={data.text}
+                isOwnMessage={data.senderId === user?._id}
+                time={currentTime !== nextTime || currentSender !== nextSender ? currentTime : null}
+                status={data.status}
+                ref={(element: HTMLDivElement) =>
+                  refCallback({ element, _id: data._id, senderId: data.senderId, status: data.status })
+                }
+              />
             );
-
-          const next = sortedMessages[index + 1];
-          const currentTime = formatMessageTime(data.createdAt);
-          const currentSender = data.senderId;
-          const nextTime = next?.type === 'message' ? formatMessageTime(next.data.createdAt) : null;
-          const nextSender = next?.type === 'message' && next.data.senderId;
-
-          return (
-            <Message
-              key={data._id}
-              text={data.text}
-              isOwnMessage={data.senderId === user?._id}
-              time={currentTime !== nextTime || currentSender !== nextSender ? currentTime : null}
-              status={data.status}
-              ref={(element: HTMLDivElement) =>
-                refCallback({ element, _id: data._id, senderId: data.senderId, status: data.status })
-              }
-            />
-          );
-        })}
+          })
+          .toReversed()}
       </div>
     </ScrollArea>
   );
