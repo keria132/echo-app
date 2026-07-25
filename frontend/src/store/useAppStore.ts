@@ -4,8 +4,6 @@ import { useAuthStore } from './useAuthStore';
 
 const SOUND_PREFERENCE_NAME = 'isSoundEnabled';
 
-export type Tabs = 'chats' | 'settings' | 'logout' | 'profile';
-
 interface AppStoreState {
   selectedChat: ChatItem | null;
   isSoundEnabled: boolean;

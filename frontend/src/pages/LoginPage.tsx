@@ -41,6 +41,10 @@ const LoginPage = () => {
     login(result.data);
   };
 
+  const handleChange = (field: keyof LoginSchemaType, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
   return (
     <section className="z-10 flex h-full w-full justify-between">
       <AuthHero className="hidden flex-1 pl-[15%] lg:flex" />
@@ -61,7 +65,7 @@ const LoginPage = () => {
                 </FieldLabel>
                 <Input
                   value={formData.email}
-                  onChange={event => setFormData({ ...formData, email: event.target.value })}
+                  onChange={event => handleChange('email', event.target.value)}
                   type="email"
                   id="email"
                   name="email"
@@ -77,7 +81,7 @@ const LoginPage = () => {
                 </FieldLabel>
                 <Input
                   value={formData.password}
-                  onChange={event => setFormData({ ...formData, password: event.target.value })}
+                  onChange={event => handleChange('password', event.target.value)}
                   type="password"
                   id="password"
                   name="password"
