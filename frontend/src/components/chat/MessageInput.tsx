@@ -66,7 +66,7 @@ const MessageInput = ({ userId }: { userId: string }) => {
           <p className="text-echo-t3 max-w-30 truncate text-xs">{image?.name}</p>
         </div>
       )}
-      <div className="flex items-center gap-2 p-4">
+      <div className="flex items-center gap-2 p-2 md:p-4">
         <Input
           ref={fileInputRef}
           type="file"

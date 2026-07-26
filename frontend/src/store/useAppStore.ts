@@ -4,12 +4,12 @@ import { useAuthStore } from './useAuthStore';
 
 const SOUND_PREFERENCE_NAME = 'isSoundEnabled';
 
-export type Tabs = 'chats' | 'settings' | 'logout' | 'profile';
-
 interface AppStoreState {
   selectedChat: ChatItem | null;
   isSoundEnabled: boolean;
   notificationsCount: number;
+  isChatPanelOpen: boolean;
+  setIsChatPanelOpen: (isOpen: boolean | ((prev: boolean) => boolean)) => void;
   setNotificationCount: (count: number) => void;
   toggleSound: () => void;
   setSelectedChat: (chat: ChatItem) => void;
@@ -20,6 +20,11 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
   selectedChat: null,
   isSoundEnabled: localStorage.getItem(SOUND_PREFERENCE_NAME) === 'true',
   notificationsCount: 0,
+  isChatPanelOpen: false,
+  setIsChatPanelOpen: isOpen =>
+    set(state => ({
+      isChatPanelOpen: typeof isOpen === 'function' ? isOpen(state.isChatPanelOpen) : isOpen,
+    })),
   setNotificationCount: (count: number) => set({ notificationsCount: count }),
   toggleSound: () => {
     const next = !get().isSoundEnabled;

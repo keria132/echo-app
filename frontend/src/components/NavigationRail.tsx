@@ -15,35 +15,20 @@ import {
 } from './ui/alert-dialog';
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/store/useAppStore';
-import { NavLink, useLocation } from 'react-router';
-import { useEffect, type Dispatch, type SetStateAction } from 'react';
+import { NavLink } from 'react-router';
 import { VisuallyHidden } from 'radix-ui';
 import notificationSound from '@/assets/sounds/notificationSound.mp3';
 
 const notificationsOnSound = new Audio(notificationSound);
 
-const NavigationRail = ({
-  setIsChatPanelOpen,
-  className,
-}: {
-  setIsChatPanelOpen: Dispatch<SetStateAction<boolean>>;
-  className?: string;
-}) => {
+const NavigationRail = ({ className }: { className?: string }) => {
   const { logout } = useAuthStore();
-  const { isSoundEnabled, toggleSound, notificationsCount } = useAppStore();
-
-  const location = useLocation();
-
-  useEffect(() => {
-    if (location.pathname !== '/') {
-      setIsChatPanelOpen(false);
-    }
-  }, [location.pathname, setIsChatPanelOpen]);
+  const { isSoundEnabled, toggleSound, notificationsCount, setIsChatPanelOpen } = useAppStore();
 
   return (
     <aside
       className={cn(
-        'bg-echo-surface border-echo-border sticky left-0 flex w-17 shrink-0 flex-col items-center gap-y-2 border-r py-4',
+        'bg-echo-surface border-echo-border sticky left-0 flex w-14 shrink-0 flex-col items-center gap-y-2 border-r py-4 md:w-17',
         className,
       )}
     >
@@ -60,8 +45,10 @@ const NavigationRail = ({
           />
         )}
       </NavLink>
-      <NavLink to="/profile">{({ isActive }) => <NavigationItem icon={User} isActive={isActive} />}</NavLink>
-      <NavLink to="/settings" className="mt-auto">
+      <NavLink to="/profile" onClick={() => setIsChatPanelOpen(false)}>
+        {({ isActive }) => <NavigationItem icon={User} isActive={isActive} />}
+      </NavLink>
+      <NavLink to="/settings" className="mt-auto" onClick={() => setIsChatPanelOpen(false)}>
         {({ isActive }) => <NavigationItem icon={Settings} isActive={isActive} />}
       </NavLink>
       <NavigationItem
@@ -78,7 +65,7 @@ const NavigationRail = ({
         <AlertDialogTrigger asChild>
           <NavigationItem icon={LogOut} />
         </AlertDialogTrigger>
-        <AlertDialogContent>
+        <AlertDialogContent className="gap-y-2">
           <AlertDialogHeader>
             <AlertDialogTitle>Do you want to log out of the account?</AlertDialogTitle>
           </AlertDialogHeader>

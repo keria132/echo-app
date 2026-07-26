@@ -1,8 +1,9 @@
 import { Badge } from '../ui/badge';
 import EchoLogo from '../EchoLogo';
+import { cn } from '@/lib/utils';
 
-const AuthHero = () => (
-  <div className="flex flex-1 flex-wrap content-center items-center justify-start gap-2 pl-[15%]">
+const AuthHero = ({ className }: { className?: string }) => (
+  <div className={cn('flex flex-wrap content-center items-center justify-start gap-2', className)}>
     <EchoLogo />
     <h1 className="to-echo-p-light bg-linear-to-br from-white from-40% bg-clip-text p-1 text-5xl font-extrabold tracking-[-2px] text-transparent">
       echo
