@@ -41,62 +41,72 @@ const LoginPage = () => {
     login(result.data);
   };
 
+  const handleChange = (field: keyof LoginSchemaType, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
   return (
     <section className="z-10 flex h-full w-full justify-between">
-      <AuthHero />
+      <AuthHero className="hidden flex-1 pl-[15%] lg:flex" />
       <form
         onSubmit={handleSubmit}
-        className="border-l-echo-border bg-echo-bg/75 flex w-120 flex-col justify-center border px-12 backdrop-blur-xl"
+        className="border-l-echo-border bg-echo-bg/75 flex w-full flex-col items-center justify-center border px-12 backdrop-blur-xl lg:w-120"
       >
-        <FieldSet>
-          <FieldLegend>
-            <h2 className="text-2xl">Log in</h2>
-          </FieldLegend>
-          <FieldDescription>Welcome back, log in to continue</FieldDescription>
-          <FieldGroup className="mt-2">
-            <Field>
-              <FieldLabel htmlFor="email" variant="silent">
-                Email
-              </FieldLabel>
-              <Input
-                value={formData.email}
-                onChange={event => setFormData({ ...formData, email: event.target.value })}
-                type="email"
-                id="email"
-                name="email"
-                autoComplete="off"
-                aria-invalid={!!errors.email}
-                required
-              />
-              <FieldError>{errors.email}</FieldError>
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="password" variant="silent">
-                Password
-              </FieldLabel>
-              <Input
-                value={formData.password}
-                onChange={event => setFormData({ ...formData, password: event.target.value })}
-                type="password"
-                id="password"
-                name="password"
-                autoComplete="off"
-                placeholder="••••••••"
-                aria-invalid={!!errors.password}
-                required
-              />
-              <FieldError>{errors.password}</FieldError>
-            </Field>
-          </FieldGroup>
-        </FieldSet>
-        <Button variant="primary" type="submit" className="shadow-echo-resting-lg hover:shadow-echo-hover-lg mt-6 h-12">
-          {isLoggingIn ? <LoaderCircle className="size-6 shrink-0 animate-spin" /> : 'Log in'}
-        </Button>
-        <div className="mt-2 text-sm">
-          Don't have an account?
-          <Button asChild variant="link" className="ml-1 h-fit! p-0">
-            <Link to="../signup">Sign up</Link>
+        <div className="flex w-full max-w-100 flex-col">
+          <FieldSet>
+            <FieldLegend>
+              <h2 className="text-2xl">Log in</h2>
+            </FieldLegend>
+            <FieldDescription>Welcome back, log in to continue</FieldDescription>
+            <FieldGroup className="mt-2">
+              <Field>
+                <FieldLabel htmlFor="email" variant="silent">
+                  Email
+                </FieldLabel>
+                <Input
+                  value={formData.email}
+                  onChange={event => handleChange('email', event.target.value)}
+                  type="email"
+                  id="email"
+                  name="email"
+                  autoComplete="off"
+                  aria-invalid={!!errors.email}
+                  required
+                />
+                <FieldError>{errors.email}</FieldError>
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="password" variant="silent">
+                  Password
+                </FieldLabel>
+                <Input
+                  value={formData.password}
+                  onChange={event => handleChange('password', event.target.value)}
+                  type="password"
+                  id="password"
+                  name="password"
+                  autoComplete="off"
+                  placeholder="••••••••"
+                  aria-invalid={!!errors.password}
+                  required
+                />
+                <FieldError>{errors.password}</FieldError>
+              </Field>
+            </FieldGroup>
+          </FieldSet>
+          <Button
+            variant="primary"
+            type="submit"
+            className="shadow-echo-resting-lg hover:shadow-echo-hover-lg mt-6 h-12"
+          >
+            {isLoggingIn ? <LoaderCircle className="size-6 shrink-0 animate-spin" /> : 'Log in'}
           </Button>
+          <div className="mt-2 text-sm">
+            Don't have an account?
+            <Button asChild variant="link" className="ml-1 h-fit! p-0">
+              <Link to="../signup">Sign up</Link>
+            </Button>
+          </div>
         </div>
       </form>
     </section>

@@ -39,7 +39,7 @@ const SignUpPage = () => {
 
   return (
     <section className="z-10 flex h-full w-full justify-between">
-      <AuthHero />
+      <AuthHero className="hidden flex-1 pl-[15%] lg:flex" />
       <SignUpForm onSubmit={handleSubmit} onChange={handleChange} formData={formData} errors={errors} />
     </section>
   );
